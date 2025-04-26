@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimal Flight Route Finder</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/animation.css">
+</head>
+<body>
+    <!-- Loading Animation -->
+    <div id="loading-animation" class="loading-animation">
+        <img src="assets/plane-icon.svg" alt="Plane Icon" class="plane-icon">
+    </div>
+
+    <!-- Header Section -->
+    <header class="hero">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold">Optimal Flight Route Finder</h1>
+            <p class="lead">Find the most efficient flight routes between any two cities in India</p>
+        </div>
+    </header>
+
+    <!-- Search Section -->
+    <section class="container">
+        <div class="search-panel">
+            <form>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="departure" class="form-label">Departure City</label>
+                        <input type="text" class="form-control" id="departure" placeholder="Enter departure city">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="destination" class="form-label">Destination City</label>
+                        <input type="text" class="form-control" id="destination" placeholder="Enter destination city">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="date" class="form-label">Travel Date</label>
+                        <input type="date" class="form-control" id="date">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">Find Routes</button>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <p class="mb-2">Optimize for:</p>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="optimizeFor" id="time" value="time" checked>
+                            <label class="form-check-label" for="time">Travel Time</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="optimizeFor" id="cost" value="cost">
+                            <label class="form-check-label" for="cost">Cost</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="optimizeFor" id="layovers" value="layovers">
+                            <label class="form-check-label" for="layovers">Fewer Layovers</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="optimizeFor" id="balanced" value="balanced">
+                            <label class="form-check-label" for="balanced">Balanced</label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="container my-5">
+        <h2 class="mb-4">Optimal Routes</h2>
+        <div class="row">
+            <div class="col-md-7">
+                <div class="card route-card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title mb-0">New York → London</h5>
+                            <span class="badge bg-success">Best Time</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <div>
+                                <p class="mb-0"><strong>7h 20m</strong> total duration</p>
+                                <p class="text-muted mb-0">Non-stop flight</p>
+                            </div>
+                            <div class="text-end">
+                                <p class="mb-0"><strong>$649</strong></p>
+                                <p class="text-muted mb-0">British Airways</p>
+                            </div>
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-outline-primary">View Details</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card route-card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title mb-0">New York → London</h5>
+                            <span class="badge bg-primary">Best Value</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <div>
+                                <p class="mb-0"><strong>9h 45m</strong> total duration</p>
+                                <p class="text-muted mb-0">1 stop (2h 15m in Dublin)</p>
+                            </div>
+                            <div class="text-end">
+                                <p class="mb-0"><strong>$499</strong></p>
+                                <p class="text-muted mb-0">Aer Lingus</p>
+                            </div>
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-outline-primary">View Details</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card route-card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title mb-0">New York → London</h5>
+                            <span class="badge bg-secondary">Alternative</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <div>
+                                <p class="mb-0"><strong>10h 30m</strong> total duration</p>
+                                <p class="text-muted mb-0">1 stop (1h 45m in Amsterdam)</p>
+                            </div>
+                            <div class="text-end">
+                                <p class="mb-0"><strong>$579</strong></p>
+                                <p class="text-muted mb-0">KLM</p>
+                            </div>
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-outline-primary">View Details</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-5">
+                <div class="map-container" id="routeMap">
+                    <div class="d-flex justify-content-center align-items-center h-100">
+                        <p class="text-muted">Interactive route map will display here</p>
+                    </div>
+                </div>
+                
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Algorithm Details</h5>
+                        <p class="card-text">This route was calculated using an optimized A* pathfinding algorithm that considers:</p>
+                        <ul>
+                            <li>Flight duration and distance</li>
+                            <li>Layover efficiency</li>
+                            <li>Historical delay data</li>
+                            <li>Price optimization</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Optimal Flight Route Finder</h5>
+                    <p>A hackathon project for efficient flight route planning.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>© 2025 Flight Route Finder Team</p>
+                    <p>Made with ❤️ for travelers worldwide</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/loading-animation.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

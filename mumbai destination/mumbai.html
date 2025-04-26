@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mumbai Flight Info</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #dcefff, #a7c7e7);
+      color: #333;
+    }
+    header {
+      background: #0f3057;
+      color: #fff;
+      text-align: center;
+      padding: 2rem 1rem;
+      animation: fadeInDown 1s ease-out;
+    }
+    h1 {
+      margin: 0;
+      font-size: 2.5rem;
+    }
+    section {
+      max-width: 900px;
+      margin: 2rem auto;
+      background: #ffffff;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      opacity: 0;
+      transform: translateY(50px);
+      transition: all 0.6s ease-out;
+    }
+    section.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    h2 {
+      color: #3f8fba;
+    }
+    ul {
+      padding-left: 1.2rem;
+    }
+    li {
+      margin-bottom: 0.7rem;
+    }
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Mumbai Airport Flight Insights</h1>
+    <p>All about departures, punctuality, and pricing</p>
+  </header>
+
+  <section>
+    <h2>📊 Daily Flight Stats</h2>
+    <ul>
+      <li>Average Flights Per Day: <strong>888</strong></li>
+      <li>Monthly Departures: <strong>13,287</strong></li>
+      <li>Monthly Arrivals: <strong>13,352</strong></li>
+      <li>Total Flights (30 days): <strong>26,639</strong></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>🌐 Popular Destinations</h2>
+    <ul>
+      <li><strong>Domestic:</strong> Delhi, Bengaluru, Hyderabad, Chennai, Kolkata, Ahmedabad, Pune</li>
+      <li><strong>International:</strong> Dubai, London, Singapore, New York, Bangkok, Frankfurt</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>⏱️ On-Time Performance (OTP)</h2>
+    <ul>
+      <li><strong>Akasa Air:</strong> 67.6% on-time</li>
+      <li><strong>IndiGo:</strong> 73.9% on-time</li>
+      <li><strong>Vistara:</strong> 66.3% on-time</li>
+      <li><strong>GoAir:</strong> 70.8% on-time</li>
+      <li><strong>SpiceJet:</strong> <span style="color: #ff6b6b; font-weight: bold;">36.1% on-time</span> (frequent delays)</li>
+      <li><strong>Air India:</strong> 59.1% on-time</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>💰 Flight Pricing (Estimated)</h2>
+    <ul>
+      <li><strong>Domestic (e.g. to Delhi):</strong> ₹3,000 - ₹8,000</li>
+      <li><strong>International (e.g. to London/NYC):</strong> ₹40,000 - ₹80,000+</li>
+      <li>Pricing depends on season, airline, and booking time.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>⚠️ Flight Delays</h2>
+    <ul>
+      <li><strong>22%</strong> of flights delayed over 15 minutes in the last month</li>
+      <li><strong>Average Delay Duration:</strong> 27 minutes</li>
+      <li>Common causes: congestion, limited parking, ATC issues</li>
+    </ul>
+  </section>
+
+  <script>
+    const sections = document.querySelectorAll('section');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('show');
+        }
+      });
+    }, {
+      threshold: 0.1
+    });
+
+    sections.forEach(section => {
+      observer.observe(section);
+    });
+  </script>
+</body>
+</html>

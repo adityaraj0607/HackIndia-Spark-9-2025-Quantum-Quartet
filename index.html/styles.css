@@ -1,0 +1,97 @@
+/* General Styles */
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+}
+body {
+  background-image: url('./images/image.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+
+
+
+
+/* Login Container */
+.login-container {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(0, 123, 255, 0.8); /* Glowing effect */
+  padding: 20px;
+  width: 600px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Glow Effect */
+.login-container::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  background: linear-gradient(45deg, rgba(0, 123, 255, 0.5), rgba(0, 255, 234, 0.5));
+  border-radius: 15px;
+  z-index: -1;
+  filter: blur(15px);
+}
+
+/* Logo Styles */
+.logo img {
+  width: 120px;
+  margin-right: 20px;
+}
+
+/* Login Box */
+.login-box {
+  text-align: center;
+  flex: 1;
+}
+
+.login-box h1 {
+  font-size: 24px;
+  color: #005BB5;
+  margin-bottom: 10px;
+}
+
+.login-box p {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.login-box input {
+  display: block;
+  margin: 10px auto;
+  padding: 12px;
+  width: 90%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.login-box button {
+  padding: 12px 30px;
+  background: #005BB5;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.login-box button:hover {
+  background: #003f7a;
+}

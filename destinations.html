@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Popular Destinations | SkyScanner Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Root variables from main page */
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: var(--light);
+            overflow-x: hidden;
+        }
+        
+        /* Header Styles */
+        header {
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+            padding-left: 80px;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--light);
+            text-transform: uppercase;
+            background: linear-gradient(to right, var(--accent), var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: transform 0.3s;
+        }
+        
+        .logo:hover {
+            transform: scale(1.05);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 30px;
+        }
+        
+        nav ul li a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: color 0.3s;
+            position: relative;
+        }
+        
+        nav ul li a:hover {
+            color: var(--accent);
+        }
+        
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--accent);
+            transition: width 0.3s;
+        }
+        
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero section */
+        .destinations-hero {
+            min-height: 50vh;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1488085061387-422e29b40080?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+        }
+        
+        .hero-content h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .hero-content p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        /* Filter section */
+        .filter-section {
+            background-color: rgba(0,0,0,0.2);
+            padding: 2rem 5%;
+        }
+        
+        .filter-container {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+            max-width: 250px;
+        }
+        
+        .filter-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .filter-select, .filter-input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: none;
+            background-color: rgba(255,255,255,0.9);
+            font-size: 1rem;
+        }
+        
+        .filter-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            background: var(--accent);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            align-self: flex-end;
+        }
+        
+        .filter-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        /* Destinations Grid */
+        .destinations-main {
+            padding: 4rem 5%;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 4px;
+            background: var(--accent);
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+        
+        .destinations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 3rem;
+        }
+        
+        .destination-card {
+            position: relative;
+            height: 400px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.5s;
+            cursor: pointer;
+        }
+        
+        .destination-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .destination-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        
+        .destination-card:hover .destination-img {
+            transform: scale(1.1);
+        }
+        
+        .destination-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.1) 100%);
+        }
+        
+        .destination-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+        
+        .destination-country {
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            opacity: 0.8;
+            color: var(--accent);
+            margin-bottom: 5px;
+        }
+        
+        .destination-city {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .destination-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .destination-detail {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            background: rgba(255,255,255,0.1);
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+        
+        .destination-detail i {
+            color: var(--success);
+        }
+        
+        .destination-price {
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+        
+        .destination-price span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .destination-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .destination-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .explore-btn {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .explore-btn:hover {
+            background: var(--secondary);
+        }
+        
+        .save-btn {
+            background: rgba(255,255,255,0.1);
+            color: var(--light);
+            backdrop-filter: blur(5px);
+        }
+        
+        .save-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Popular searches section */
+        .popular-searches {
+            padding: 3rem 5%;
+            background: rgba(0,0,0,0.1);
+        }
+        
+        .popular-tags {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 2rem;
+        }
+        
+        .tag {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(5px);
+        }
+        
+        .tag:hover {
+            background: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        /* Footer */
+        footer {
+            padding: 40px 5%;
+            background: rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-column {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .footer-column h3 {
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            width: 50%;
+            height: 2px;
+            background: var(--accent);
+            bottom: -8px;
+            left: 0;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-column ul li a {
+            color: var(--light);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-column ul li a:hover {
+            color: var(--accent);
+        }
+        
+        .copyright {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Sidebar Menu Styles */
+        .menu-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .menu-toggle:hover {
+            background-color: var(--accent);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1010;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+            backdrop-filter: blur(3px);
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -320px;
+            width: 320px;
+            height: 100%;
+            background: linear-gradient(135deg, #302b63, #24243e);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            z-index: 1020;
+            transition: left 0.3s ease-in-out;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--light);
+            text-transform: uppercase;
+            background: linear-gradient(to right, var(--accent), var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sidebar-close {
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar-close:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            padding: 15px 0;
+        }
+
+        .sidebar-heading {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.6);
+            padding: 0 20px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--light);
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar-link:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar-link i {
+            width: 24px;
+            margin-right: 15px;
+            text-align: center;
+            color: var(--accent);
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background-color: rgba(255, 255, 255, 0.1);
+            margin: 5px 0;
+        }
+
+        /* Active States */
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 1024px) {
+            .destinations-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                padding: 20px;
+                flex-direction: column;
+                gap: 20px;
+                padding-left: 50px;
+            }
+            
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            nav ul li {
+                margin: 0 10px 10px;
+            }
+            
+            .destinations-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .filter-group {
+                max-width: 100%;
+            }
+            
+            .sidebar {
+                width: 280px;
+                left: -280px;
+            }
+            
+            .menu-toggle {
+                top: 15px;
+                left: 15px;
+            }
+            
+            .destination-details {
+                gap: 8px;
+            }
+            
+            .destination-detail {
+                font-size: 0.8rem;
+                padding: 4px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hamburger Menu Button -->
+    <button id="menu-toggle" class="menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <!-- Sidebar Menu -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">SkyScanner</div>
+            <button id="sidebar-close" class="sidebar-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="sidebar-content">
+            <!-- Main Navigation -->
+            <div class="sidebar-section">
+                <ul class="sidebar-nav">
+                    <li>
+                        <a href="../new.html" class="sidebar-link">
+                            <i class="fas fa-home"></i>
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-link">
+                            <i class="fas fa-plane"></i>
+                            <span>Flights</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-link">
+                            <i class="fas fa-hotel"></i>
+                            <span>Stays</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-link">
+                            <i class="fas fa-car"></i>
+                            <span>Train Routes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-link">
+                            <i class="fas fa-suitcase"></i>
+                            <span>Flight+Hotel</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="sidebar-divider"></div>
+            
+            <!-- Explore Section -->
+            <div class="sidebar-section">
+                <h3 class="sidebar-heading">Explore</h3>
+                <ul class="sidebar-nav">
+                    <li>
+                        <a href="destinations.html" class="sidebar-link">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Destinations</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-link">
+                            <i class="fas fa-percent"></i>
+                            <span>Best time to travel</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-link">
+                            <i class="fas fa-route"></i>
+                            <span>Travel guides</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="sidebar-divider"></div>
+            
+            <!-- Account Section -->
+            <div class="sidebar-section">
+                <h3 class="sidebar-heading">Account</h3>
+                <ul class="sidebar-nav">
+                    <li>
+                        <a href="#" class="sidebar-link">
+                            <i class="fas fa-user-circle"></i>
+                            <span>Profile</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-link">
+                            <i class="fas fa-bell"></i>
+                            <span>Notifications</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-link">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-link">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Log Out</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">SkyScanner</div>
+        <nav>
+            <ul>
+                <li><a href="../new.html" class="nav-link">Home</a></li>
+                <li><a href="#" class="nav-link">Flights</a></li>
+                <li><a href="destinations.html" class="nav-link">Destinations</a></li>
+                <li><a href="#" class="nav-link">Offers</a></li>
+                <li><a href="#" class="nav-link">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="destinations-hero">
+        <div class="hero-content">
+            <h1>Explore the World</h1>
+            <p>Discover amazing destinations and plan your next adventure with exclusive deals and personalized recommendations.</p>
+        </div>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="filter-section">
+        <div class="filter-container">
+            <div class="filter-group">
+                <label class="filter-label">Region</label>
+                <select class="filter-select">
+                    <option value="">All Regions</option>
+                    <option value="asia">Asia</option>
+                    <option value="europe">Europe</option>
+                    <option value="north-america">North America</option>
+                    <option value="south-america">South America</option>
+                    <option value="africa">Africa</option>
+                    <option value="oceania">Oceania</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Travel Type</label>
+                <select class="filter-select">
+                    <option value="">All Types</option>
+                    <option value="beach">Beach</option>
+                    <option value="city">City Break</option>
+                    <option value="adventure">Adventure</option>
+                    <option value="culture">Culture</option>
+                    <option value="nature">Nature</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Budget</label>
+                <select class="filter-select">
+                    <option value="">Any Budget</option>
+                    <option value="budget">Budget</option>
+                    <option value="mid-range">Mid-range</option>
+                    <option value="luxury">Luxury</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Season</label>
+                <select class="filter-select">
+                    <option value="">Any Season</option>
+                    <option value="spring">Spring</option>
+                    <option value="summer">Summer</option>
+                    <option value="autumn">Autumn</option>
+                    <option value="winter">Winter</option>
+                </select>
+            </div>
+            
+            <button class="filter-btn">
+                <i class="fas fa-search"></i> Filter
+            </button>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="destinations-main">
+        <h2 class="section-title">Popular Destinations</h2>
+        <p class="section-subtitle">Explore our curated selection of must-visit places around the world</p>
+        
+        <div class="destinations-grid">
+            <!-- Destination 1 -->
+            <div class="destination-card">
+                <img src="https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Tokyo, Japan" class="destination-img">
+                <div class="destination-overlay"></div>
+                <div class="destination-content">
+                    <span class="destination-country">Japan</span>
+                    <h3 class="destination-city">Tokyo</h3>
+                    <div class="destination-details">
+                        <div class="destination-detail">
+                            <i class="fas fa-sun"></i>
+                            <span>22°C</span>
+                        </div>
+                        <div class="destination-detail">
+                            <i class="fas fa-clock"></i>
+                            <span>15h Flight</span>
+                        </div>
+                        <div class="destination-detail">
+                            <i class="fas fa-star"></i>
+                            <span>4.9</span>
+                        </div>
+                    </div>
+                    <p class="destination-price">from <span>₹70,500</span></p>
+                    <div class="destination-actions">
+                        <button class="destination-btn explore-btn">Explore</button>
+                        <button class="destination-btn save-btn">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Destination 2 -->
+            <div class="destination-card">
+                <img src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Paris, France" class="destination-img">
+                <div class="destination-overlay"></div>
+                <div class="destination-content">
+                    <span class="destination-country">France</span>
+                    <h3 class="destination-city">Paris</h3>
+                    <div class="destination-details">
+                        <div class="destination-detail">
+                            <i class="fas fa-cloud-sun"></i>
+                            <span>18°C</span>
+                        </div>
+                        <div class="destination-detail">
+                            <i class="fas fa-clock"></i>
+                            <span>9h Flight</span>
+                        </div>
+                        <div class="destination-detail">
+                            <i class="fas fa-star"></i>
+                            <span>4.7</span>
+                        </div>
+                    </div>
+                    <p class="destination-price">from <span>₹48,750</span></p>
+                    <div class="destination-actions">
+                        <button class="destination-btn explore-btn">Explore</button>
+                        <button class="destination-btn save-btn">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Destination 3 -->
+            <div class="destination-card">
+                <img src="https://images.unsplash.com/photo-1525874684015-58379d421a52?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Santorini, Greece" class="destination-img">
+                <div class="destination-overlay"></div>
+                <div class="destination-content">
+                    <span class="destination-country">Greece</span>
+                    <h3 class="destination-city">Santorini</h3>
+                    <div class="destination-details">
+                        <div class="destination-detail">
+                            <i class="fas fa-sun"></i>
+                            <span>25°C</span>
+                        </div>
+                        <div class="destination-detail">
+                            <i class="fas fa-clock"></i>
+                            <span>8h Flight</span>
+                        </div>
+                        <div class="destination-detail">
+                            <i class="fas fa-star"></i>
+                            <span>4.8</span>
+                        </div>
+                    </div>
+                    <p class="destination-price">from <span>₹42,300</span></p>
+                    <div class="destination-actions">
+                        <button class="destination-btn explore-btn">Explore</button>
+                        <button class="destination-btn save-btn">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Destination 4 -->
+            <div class="destination-card">
+                <img src="https://images.unsplash.com/photo-1545893835-1e9a59e89f85?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Bali, Indonesia" class="destination-img">
+                <div class="destination-overlay"></div>
+                <div class="destination-content">
+                    <span class="destination-country">Indonesia</span>
+                    <h3 class="destination-city">Bali</h3>
+                    <div class="destination-details">
+                        <div class="destination-detail">
+                            <i class="fas fa-sun"></i>
+                            <span>29°C</span>
+                        </div>
+                        <div class="destination-detail">
+                            <i class="fas fa-clock"></i>
+                            <span>9h Flight</span>
+                        </div>
+                        <div class="destination-detail">
+                            <i class="fas fa-star"></i>
+                            <span>4.6</span>
+                        </div>
+                    </div>
+                    <p class="destination-price">from <span>₹38,900</span></p>
+                    <div class="destination-actions">
+                        <button class="destination-btn explore-btn">Explore</button>
+                        <button class="destination-btn save-btn">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Destination 5 -->
+            <div class="destination-card">
+                <img src="https://images.unsplash.com/photo-1547117607-cc0a7e152aec?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="New York, USA" class="destination-img">
+                <div class="destination-overlay"></div>
+                <div class="destination-content">
+                    <span class="destination-country">United States</span>
+                    <h3 class="destination-city">New York</h3>
+                    <div class="destination-details">
+                        <div class="destination-detail">
+                            <i class="fas fa-cloud"></i>
+                            <span>14°C</span>
+                        </div>
+                        <div class="destination-detail">
+                            <i class="fas fa-clock"></i>
+                            <span>16h Flight</span>
+                        </div>
+                        <div class="destination-detail">
+                            <i class="fas fa-star"></i>
+                            <span>4.7</span>
+                        </div>
+                    </div>
+                    <p class="destination-price">from <span>₹72,990</span></p>
+                    <div class="destination-actions">
+                        <button class="destination-btn explore-btn">Explore</button>
+                        <button class="destination-btn save-btn">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Destination 6 -->
+            <div class="destination-card">
+                <img src="https://images.unsplash.com/photo-1597534458220-9fb4969f2df5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Sydney, Australia" class="destination-img">
+                <div class="destination-overlay"></div>
+                <div class="destination-content">
+                    <span class="destination-country">Australia</span>
+                    <h3 class="destination-city">Sydney</h3>
+                    <div class="destination-details">
+                        <div class="destination-detail">
+                            <i class="fas fa-sun"></i>
+                            <span>23°C</span>
+                        </div>
+                        <div class="destination-detail">
+                            <i class="fas fa-clock"></i>
+                            <span>14h Flight</span>
+                        </div>
+                        <div class="destination-detail">
+                            <i class="fas fa-star"></i>
+                            <span>4.9</span>
+                        </div>
+                    </div>
+                    <p class="destination-price">from <span>₹85,400</span></p>
+                    <div class="destination-actions">
+                        <button class="destination-btn explore-btn">Explore</button>
+                        <button class="destination-btn save-btn">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Destination 7 -->
+            <div class="destination-card">
+                <img src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Dubai, UAE" class="destination-img">
+                <div class="destination-overlay"></div>
+                <div class="destination-content">
+                    <span class="destination-country">United Arab Emirates</span>
+                    <h3 class="destination-city">Dubai</h3>
+                    <div class="destination-details">
+                        <div class="destination-detail">
+                            <i class="fas fa-sun"></i>
+                            <span>32°C</span>
+                        </div>
+                        <div class="destination-detail">
+                            <i class="fas fa-clock"></i>
+                            <span>4h Flight</span>
+                        </div>
+                        <div class="destination-detail">
+                            <i class="fas fa-star"></i>
+                            <span>4.8</span>
+                        </div>
+                    </div>
+                    <p class="destination-price">from <span>₹32,550</span></p>
+                    <div class="destination-actions">
+                        <button class="destination-btn explore-btn">Explore</button>
+                        <button class="destination-btn save-btn">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Destination 8 -->
+            <div class="destination-card">
+                <img src="https://images.unsplash.com/photo-1597043851759-3b383d332343?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Goa, India" class="destination-img">
+                <div class="destination-overlay"></div>
+                <div class="destination-content">
+                    <span class="destination-country">India</span>
+                    <h3 class="destination-city">Goa</h3>
+                    <div class="destination-details">
+                        <div class="destination-detail">
+                            <i class="fas fa-sun"></i>
+                            <span>31°C</span>
+                        </div>
+                        <div class="destination-detail">
+                            <i class="fas fa-clock"></i>
+                            <span>2h Flight</span>
+                        </div>
+                        <div class="destination-detail">
+                            <i class="fas fa-star"></i>
+                            <span>4.5</span>
+                        </div>
+                    </div>
+                    <p class="destination-price">from <span>₹8,200</span></p>
+                    <div class="destination-actions">
+                        <button class="destination-btn explore-btn">Explore</button>
+                        <button class="destination-btn save-btn">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Destination 9 -->
+            <div class="destination-card">
+                <img src="https://images.unsplash.com/photo-1539037116277-4db20889f2d4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Singapore" class="destination-img">
+                <div class="destination-overlay"></div>
+                <div class="destination-content">
+                    <span class="destination-country">Singapore</span>
+                    <h3 class="destination-city">Singapore</h3>
+                    <div class="destination-details">
+                        <div class="destination-detail">
+                            <i class="fas fa-cloud-sun"></i>
+                            <span>28°C</span>
+                        </div>
+                        <div class="destination-detail">
+                            <i class="fas fa-clock"></i>
+                            <span>6h Flight</span>
+                        </div>
+                        <div class="destination-detail">
+                            <i class="fas fa-star"></i>
+                            <span>4.9</span>
+                        </div>
+                    </div>
+                    <p class="destination-price">from <span>₹35,200</span></p>
+                    <div class="destination-actions">
+                        <button class="destination-btn explore-btn">Explore</button>
+                        <button class="destination-btn save-btn">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Popular Searches Section -->
+    <section class="popular-searches">
+        <h2 class="section-title">Popular Searches</h2>
+        <div class="popular-tags">
+            <div class="tag">Beach Destinations</div>
+            <div class="tag">City Breaks</div>
+            <div class="tag">Weekend Getaways</div>
+            <div class="tag">Budget Travel</div>
+            <div class="tag">Luxury Resorts</div>
+            <div class="tag">Adventure Tours</div>
+            <div class="tag">Family Friendly</div>
+            <div class="tag">Summer 2025</div>
+            <div class="tag">Winter Escapes</div>
+            <div class="tag">Asia Explorer</div>
+            <div class="tag">Europe Tour</div>
+            <div class="tag">Hidden Gems</div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>SkyScanner Pro</h3>
+                <p>Find your perfect flight at the perfect price with our advanced flight search technology.</p>
+            </div>
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="../new.html">Home</a></li>
+                    <li><a href="#">Search Flights</a></li>
+                    <li><a href="destinations.html">Destinations</a></li>
+                    <li><a href="#">Offers</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Resources</h3>
+                <ul>
+                    <li><a href="#">Flight Status</a></li>
+                    <li><a href="#">Travel Guides</a></li>
+                    <li><a href="#">FAQs</a></li>
+                    <li><a href="#">Support</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Contact Us</h3>
+                <ul>
+                    <li><a href="#">support@skyscannerpro.com</a></li>
+                    <li><a href="#">+91 9939725319</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>© 2025 SkyScanner Pro. All rights reserved. Created by Quantum Quartet, India.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Sidebar Menu Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+            const sidebarClose = document.getElementById('sidebar-close');
+            
+            // Function to open sidebar
+            function openSidebar() {
+                sidebar.classList.add('active');
+                sidebarOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden'; // Prevent scrolling
+            }
+            
+            // Function to close sidebar
+            function closeSidebar() {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = ''; // Restore scrolling
+            }
+            
+            // Event listeners
+            menuToggle.addEventListener('click', openSidebar);
+            sidebarClose.addEventListener('click', closeSidebar);
+            sidebarOverlay.addEventListener('click', closeSidebar);
+            
+            // Close sidebar when pressing escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && sidebar.classList.contains('active')) {
+                    closeSidebar();
+                }
+            });
+            
+            // Save button heart toggle
+            const saveButtons = document.querySelectorAll('.save-btn');
+            saveButtons.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const heart = this.querySelector('i');
+                    if (heart.classList.contains('far')) {
+                        heart.classList.remove('far');
+                        heart.classList.add('fas');
+                        heart.style.color = '#f72585';
+                    } else {
+                        heart.classList.remove('fas');
+                        heart.classList.add('far');
+                        heart.style.color = '';
+                    }
+                });
+            });
+            
+            // Filter functionality
+            const filterBtn = document.querySelector('.filter-btn');
+            filterBtn.addEventListener('click', function() {
+                // Animation to show filtering is happening
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Filtering';
+                
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-check"></i> Filtered';
+                    setTimeout(() => {
+                        this.innerHTML = '<i class="fas fa-search"></i> Filter';
+                    }, 1500);
+                }, 1000);
+                
+                // In a real app, you would filter the destinations here
+            });
+            
+            // Popular tags click event
+            const tags = document.querySelectorAll('.tag');
+            tags.forEach(tag => {
+                tag.addEventListener('click', function() {
+                    // In a real app, you would filter by the selected tag
+                    tag.style.background = 'var(--accent)';
+                    
+                    setTimeout(() => {
+                        tag.style.background = '';
+                    }, 2000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

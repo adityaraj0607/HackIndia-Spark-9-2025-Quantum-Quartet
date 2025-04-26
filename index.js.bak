@@ -1,0 +1,134 @@
+const express = require('express');
+const cors = require('cors');
+const axios = require('axios');
+require('dotenv').config();
+const flightRoutes = require('./routes/flightRoutes');
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(express.static('./'));
+
+// Use your flight routes
+app.use('/api/flights', flightRoutes);
+
+// Add a direct flights search endpoint
+app.post('/api/flights/search', async (req, res) => {
+  try {
+    const { from, to, date, returnDate, passengers } = req.body;
+    
+    // Validate required fields
+    if (!from || !to || !date) {
+      return res.status(400).json({ error: 'Missing required parameters' });
+    }
+    
+    // Use AviationStack API if you have a key, otherwise use mock data
+    const apiKey = process.env.AVIATION_STACK_API_KEY;
+    
+   // Located around line 27 in your index.js file
+   if (apiKey) {
+    try {
+      console.log(`Calling Aviation Stack API for flight from ${from} to ${to} on ${date}`);
+      const response = await axios.get(`http://api.aviationstack.com/v1/flights`, {
+        params: {
+          access_key: apiKey,
+          dep_iata: from,
+          arr_iata: to,
+          flight_date: date
+        }
+      });
+      
+      console.log('API response received:', response.status);
+      
+      // Check if we have valid data
+      if (response.data && response.data.data && Array.isArray(response.data.data)) {
+        if (response.data.data.length === 0) {
+          console.log('No flights found in API response');
+          // Return empty flights array instead of falling back to mock data
+          return res.json({ flights: [] });
+        }
+        
+        // Transform Aviation Stack data to your desired format
+        const flights = response.data.data.map(flight => ({
+          id: flight.flight.iata || flight.flight.icao || 'Unknown',
+          airline: flight.airline.name || 'Unknown Airline',
+          from: flight.departure.iata,
+          to: flight.arrival.iata,
+          departure: flight.departure.scheduled,
+          arrival: flight.arrival.scheduled,
+          duration: calculateDuration(flight.departure.scheduled, flight.arrival.scheduled),
+          price: 15000 + Math.floor(Math.random() * 10000) // Mock price as Aviation Stack doesn't provide prices
+        }));
+        
+        return res.json({ flights });
+      } else {
+        console.error('Invalid API response format:', response.data);
+        throw new Error('Invalid API response format');
+      }
+    } catch (error) {
+      console.error('Aviation Stack API error:', error.message);
+      if (error.response) {
+        console.error('Error response data:', error.response.data);
+        console.error('Error response status:', error.response.status);
+      }
+      console.log('Falling back to mock data');
+      // Continue to mock data...
+    }
+  }
+    
+    // Mock flight data (used if no API key or API call fails)
+    const flights = [
+      {
+        id: 'AI123',
+        airline: 'Air India',
+        from: from,
+        to: to,
+        departure: `${date}T08:30:00`,
+        arrival: `${date}T11:15:00`,
+        duration: '2h 45m',
+        price: 12500 + Math.floor(Math.random() * 8000)
+      },
+      {
+        id: 'UK456',
+        airline: 'Vistara',
+        from: from,
+        to: to,
+        departure: `${date}T14:15:00`,
+        arrival: `${date}T16:45:00`,
+        duration: '2h 30m',
+        price: 14800 + Math.floor(Math.random() * 5000)
+      },
+      {
+        id: '6E789',
+        airline: 'IndiGo',
+        from: from,
+        to: to,
+        departure: `${date}T18:30:00`,
+        arrival: `${date}T20:55:00`,
+        duration: '2h 25m',
+        price: 9800 + Math.floor(Math.random() * 5000)
+      }
+    ];
+    
+    res.json({ flights });
+  } catch (error) {
+    console.error('Server error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Helper function to calculate duration between two dates
+function calculateDuration(departure, arrival) {
+  const deptTime = new Date(departure);
+  const arrTime = new Date(arrival);
+  const durationMs = arrTime - deptTime;
+  const hours = Math.floor(durationMs / (1000 * 60 * 60));
+  const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+  return `${hours}h ${minutes}m`;
+}
+
+// Start the server
+const PORT = 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

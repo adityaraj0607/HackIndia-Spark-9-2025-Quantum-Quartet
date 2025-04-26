@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Top Daily On-Time Flights in India</title>
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #0A1D37; /* Dark blue background */
+      color: white;
+    }
+    header {
+      background-color: #021B2D; /* Dark blue header */
+      color: white;
+      text-align: center;
+      padding: 2rem 1rem;
+      border-bottom: 2px solid #444;
+    }
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+    .search {
+      margin: 20px auto;
+      text-align: center;
+    }
+    .search input {
+      width: 60%;
+      padding: 12px;
+      font-size: 1rem;
+      border: 1px solid #555;
+      border-radius: 8px;
+      background-color: #1A3140; /* Dark blue search bar */
+      color: white;
+    }
+    .search input::placeholder {
+      color: #bbb;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+    .card {
+      background: #1D2B37; /* Darker blue for card background */
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      transition: transform 0.3s;
+      overflow: hidden;
+    }
+    .card:hover {
+      transform: scale(1.05);
+    }
+    .card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    .card h2 {
+      margin-top: 10px;
+      font-size: 1.2rem;
+      color: #1E90FF; /* Light blue for titles */
+    }
+    .card p {
+      font-size: 0.95rem;
+      color: #ddd;
+    }
+    footer {
+      text-align: center;
+      background: #021B2D; /* Same dark blue as header */
+      color: white;
+      padding: 1rem;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Top Daily On-Time Flights in India</h1>
+    <p>Featuring the best punctuality, features, and routes</p>
+  </header>
+
+  <div class="search">
+    <input type="text" id="searchBar" placeholder="Search by city, airline, or route...">
+  </div>
+
+  <div class="container" id="flightList">
+    <!-- Flight Cards with Data -->
+    <div class="card" data-aos="fade-up">
+      <img src="images.jpeg" alt="Flight Image">
+      <h2>IndiGo 6E 203</h2>
+      <p><strong>Route:</strong> Delhi ➡ Mumbai<br><strong>On-Time Performance:</strong> 96%<br><strong>Features:</strong> Free Wi-Fi, In-flight snacks, USB charging<br><strong>Average Delay:</strong> 4 minutes</p>
+    </div>
+
+    <div class="card" data-aos="fade-up">
+      <img src="e28512e03b117a1aa96b03f3aa58599f.jpg" alt="Flight Image">
+      <h2>Vistara UK 997</h2>
+      <p><strong>Route:</strong> Bengaluru ➡ Goa<br><strong>On-Time Performance:</strong> 97%<br><strong>Features:</strong> Premium meals, Recliner seats<br><strong>Average Delay:</strong> 3 minutes</p>
+    </div>
+
+    <div class="card" data-aos="fade-up">
+      <img src="airindia-featureimage-startuptalky.png" alt="Flight Image">
+      <h2>Air India AI 302</h2>
+      <p><strong>Route:</strong> Mumbai ➡ Delhi<br><strong>On-Time Performance:</strong> 94%<br><strong>Features:</strong> Spacious legroom, In-flight entertainment<br><strong>Average Delay:</strong> 5 minutes</p>
+    </div>
+
+    <div class="card" data-aos="fade-up">
+      <img src="spicejet5998.logowik.com.webp" alt="Flight Image">
+      <h2>SpiceJet SG 957</h2>
+      <p><strong>Route:</strong> Kolkata ➡ Chennai<br><strong>On-Time Performance:</strong> 95%<br><strong>Features:</strong> Comfortable seating, Free water<br><strong>Average Delay:</strong> 6 minutes</p>
+    </div>
+
+    <div class="card" data-aos="fade-up">
+      <img src="go air.avif" alt="Flight Image">
+      <h2>GoAir G8 153</h2>
+      <p><strong>Route:</strong> Delhi ➡ Pune<br><strong>On-Time Performance:</strong> 97%<br><strong>Features:</strong> Quick boarding, In-seat entertainment<br><strong>Average Delay:</strong> 4 minutes</p>
+    </div>
+
+    <div class="card" data-aos="fade-up">
+      <img src="airindia-featureimage-startuptalky.png" alt="Flight Image">
+      <h2>Air India Express IX 145</h2>
+      <p><strong>Route:</strong> Kochi ➡ Sharjah<br><strong>On-Time Performance:</strong> 92%<br><strong>Features:</strong> Duty-free shopping, Spacious cabins<br><strong>Average Delay:</strong> 8 minutes</p>
+    </div>
+
+    <div class="card" data-aos="fade-up">
+      <img src="images.jpeg" alt="Flight Image">
+      <h2>IndiGo 6E 406</h2>
+      <p><strong>Route:</strong> Mumbai ➡ Bengaluru<br><strong>On-Time Performance:</strong> 98%<br><strong>Features:</strong> In-flight snacks, USB charging<br><strong>Average Delay:</strong> 2 minutes</p>
+    </div>
+
+    <div class="card" data-aos="fade-up">
+      <img src="e28512e03b117a1aa96b03f3aa58599f.jpg" alt="Flight Image">
+      <h2>Vistara UK 112</h2>
+      <p><strong>Route:</strong> Delhi ➡ Kolkata<br><strong>On-Time Performance:</strong> 95%<br><strong>Features:</strong> Premium meals, Recliner seats<br><strong>Average Delay:</strong> 6 minutes</p>
+    </div>
+
+    <div class="card" data-aos="fade-up">
+      <img src="spicejet5998.logowik.com.webp" alt="Flight Image">
+      <h2>SpiceJet SG 522</h2>
+      <p><strong>Route:</strong> Jaipur ➡ Bengaluru<br><strong>On-Time Performance:</strong> 93%<br><strong>Features:</strong> Free Wi-Fi, Comfortable seating<br><strong>Average Delay:</strong> 7 minutes</p>
+    </div>
+
+    <div class="card" data-aos="fade-up">
+      <img src="go air.avif" alt="Flight Image">
+      <h2>GoAir G8 171</h2>
+      <p><strong>Route:</strong> Delhi ➡ Hyderabad<br><strong>On-Time Performance:</strong> 94%<br><strong>Features:</strong> Premium meals, Recliner seats<br><strong>Average Delay:</strong> 5 minutes</p>
+    </div>
+
+    <!-- Continue adding similar details for the remaining flights -->
+
+    <!-- Example for more flights -->
+    <div class="card" data-aos="fade-up">
+      <img src="images.jpeg" alt="Flight Image">
+      <h2>IndiGo 6E 12</h2>
+      <p><strong>Route:</strong> Kolkata ➡ Chennai<br><strong>On-Time Performance:</strong> 97%<br><strong>Features:</strong> Free Wi-Fi, Snacks, USB charging ports<br><strong>Average Delay:</strong> 3 minutes</p>
+    </div>
+
+    <div class="card" data-aos="fade-up">
+      <img src="e28512e03b117a1aa96b03f3aa58599f.jpg" alt="Flight Image">
+      <h2>Vistara UK 928</h2>
+      <p><strong>Route:</strong> Mumbai ➡ Delhi<br><strong>On-Time Performance:</strong> 95%<br><strong>Features:</strong> Luxury seats, USB charging ports<br><strong>Average Delay:</strong> 4 minutes</p>
+    </div>
+
+    <div class="card" data-aos="fade-up">
+      <img src="airindia-featureimage-startuptalky.png" alt="Flight Image">
+      <h2>Air India AI 661</h2>
+      <p><strong>Route:</strong> Pune ➡ Bengaluru<br><strong>On-Time Performance:</strong> 92%<br><strong>Features:</strong> Spacious legroom, Free snacks<br><strong>Average Delay:</strong> 9 minutes</p>
+    </div>
+
+    <div class="card" data-aos="fade-up">
+      <img src="spicejet5998.logowik.com.webp" alt="Flight Image">
+      <h2>SpiceJet SG 872</h2>
+      <p><strong>Route:</strong> Delhi ➡ Goa<br><strong>On-Time Performance:</strong> 93%<br><strong>Features:</strong> Free Wi-Fi, Comfortable seating<br><strong>Average Delay:</strong> 5 minutes</p>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>&copy; SkyScanner 2025</p>
+  </footer>
+
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    AOS.init();
+  </script>
+</body>
+</html>

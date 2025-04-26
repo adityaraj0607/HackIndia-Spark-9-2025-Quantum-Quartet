@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimal Flight Route Finder</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/config.js"></script>
+    <script src="js/api-service.js"></script>
+    <script>
+        // ✅ API Configuration
+        const CONFIG = {
+            API_KEY: '6d8e148cdbabff0f35b3ee182d5803c2',
+            API_PROVIDER: 'aviationstack',
+            CACHE_DURATION: 15, // in minutes
+            ENABLE_LIVE_TRACKING: true,
+            ENABLE_PRICE_ALERTS: false // not used here but for future
+        };
+
+        // ✅ Flight API Integration Service
+        class FlightDataService {
+            constructor(config) {
+                this.apiKey = config.API_KEY;
+                this.baseUrl = 'http://api.aviationstack.com/v1';
+            }
+
+            async getLiveFlights() {
+                try {
+                    const response = await fetch(`${this.baseUrl}/flights?access_key=${this.apiKey}`);
+
+                    if (!response.ok) {
+                        throw new Error(`API Error: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    return data;
+                } catch (error) {
+                    console.error('Error fetching live flights:', error);
+                    return { error: error.message };
+                }
+            }
+        }
+
+        // ✅ Initialize the service using CONFIG
+        const flightService = new FlightDataService(CONFIG);
+
+        async function fetchLiveFlights() {
+            if (!CONFIG.ENABLE_LIVE_TRACKING) {
+                alert("Live tracking is disabled in the config.");
+                return;
+            }
+
+            const data = await flightService.getLiveFlights();
+            document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+        }
+// Add this to your existing <script> section before the closing 
+
+document.addEventListener('DOMContentLoaded', function() {
+    // flightService is already initialized above with the CONFIG object
+    
+    // Load live flight data for the globe visualization
+    loadLiveFlightData();
+    
+    // Rest of your existing code...
+    setInterval(createRandomFlight, 3000);
+    initializeFlightNetwork();
+    createBackgroundNetwork();
+});
+
+// Load real flight data for the globe
+async function loadLiveFlightData() {
+    try {
+        // Show loading indicator
+        const mapContainer = document.querySelector('.map-container');
+        const loadingIndicator = document.createElement('div');
+        loadingIndicator.className = 'map-loading';
+        loadingIndicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading live flight data...';
+        mapContainer.appendChild(loadingIndicator);
+        
+        // Fetch real flight data
+        const liveFlights = await flightService.getLiveFlights();
+        
+        // Remove loading indicator
+        loadingIndicator.remove();
+        
+        if (liveFlights.error) {
+            console.error("Failed to load live flights:", liveFlights.error);
+            return;
+        }
+        
+        // Clear existing demo flight paths
+        const flightPath = document.querySelector('.flight-path');
+        flightPath.innerHTML = '';
+        
+        // Process and display real flight paths
+        if (liveFlights.data && Array.isArray(liveFlights.data)) {
+            displayRealFlightPaths(liveFlights.data);
+        }
+    } catch (error) {
+        console.error("Error loading flight data:", error);
+    }
+}
+
+// Display real flight paths on the globe
+function displayRealFlightPaths(flights) {
+    const flightPath = document.querySelector('.flight-path');
+    const map = document.querySelector('.globe');
+    const mapWidth = map.offsetWidth;
+    const mapHeight = map.offsetHeight;
+    
+    // Process up to 50 flights to avoid overwhelming the visualization
+    const displayFlights = flights.slice(0, 50);
+    
+    displayFlights.forEach(flight => {
+        // Convert longitude/latitude to x/y coordinates
+        // This is a simplified conversion - adjust based on your map projection
+        const fromX = ((flight.departure.longitude + 180) / 360) * 100 + '%';
+        const fromY = ((90 - flight.departure.latitude) / 180) * 100 + '%';
+        const toX = ((flight.arrival.longitude + 180) / 360) * 100 + '%';
+        const toY = ((90 - flight.arrival.latitude) / 180) * 100 + '%';
+        
+        // Create city nodes for departure and arrival
+        createCityNode(fromX, fromY, flight.departure.city, flightPath);
+        createCityNode(toX, toY, flight.arrival.city, flightPath);
+        
+        // Create flight connection
+        createFlightConnection(fromX, fromY, toX, toY, flightPath, flight.airline);
+    });
+}
+
+// Create a city node for real data
+function createCityNode(x, y, name, container) {
+    // Check if node already exists to avoid duplicates
+    const existingNodes = container.querySelectorAll('.city-node');
+    for (let node of existingNodes) {
+        if (node.style.left === x && node.style.top === y) {
+            return; // City already exists
+        }
+    }
+    
+    const cityNode = document.createElement('div');
+    cityNode.className = 'city-node real-data';
+    cityNode.style.left = x;
+    cityNode.style.top = y;
+    
+    const cityPulse = document.createElement('div');
+    cityPulse.className = 'city-pulse';
+    
+    const cityLabel = document.createElement('div');
+    cityLabel.className = 'city-label';
+    cityLabel.textContent = name;
+    
+    cityNode.appendChild(cityPulse);
+    cityNode.appendChild(cityLabel);
+    container.appendChild(cityNode);
+}
+
+// Modified search form handler to use real API data
+document.querySelector('.search-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    this.classList.add('loading');
+    
+    const departure = document.getElementById('departure').value;
+    const destination = document.getElementById('destination').value;
+    const date = document.getElementById('date').value;
+    const priority = document.getElementById('priority').value;
+    
+    try {
+        // Fetch real flight routes
+        const routes = await flightService.getFlightRoutes(departure, destination, date);
+        
+        // Process the response and display routes
+        if (!routes.error && routes.data) {
+            // Create the flight path visualization with real data
+            visualizeRouteOnGlobe(routes.data, priority);
+            
+            // Here you would also update the UI with flight options
+            // This depends on your specific API response format
+        }
+    } catch (error) {
+        console.error("Error searching flights:", error);
+    } finally {
+        this.classList.remove('loading');
+    }
+});
+
+// Visualize a specific route on the globe
+function visualizeRouteOnGlobe(routeData, priority) {
+    const globe = document.querySelector('.globe');
+    
+    // Reset animation for visual effect
+    globe.style.animation = 'none';
+    globe.offsetHeight; // Force reflow
+    globe.style.animation = 'rotateGlobe 30s linear infinite';
+    
+    // Clear existing custom paths
+    const existingPaths = document.querySelectorAll('.custom-flight-path, svg');
+    existingPaths.forEach(path => path.remove());
+    
+    // Find best route based on priority
+    let bestRoute;
+    switch(priority) {
+        case 'time':
+            bestRoute = routeData.sort((a, b) => a.duration - b.duration)[0];
+            break;
+        case 'cost':
+            bestRoute = routeData.sort((a, b) => a.price - b.price)[0];
+            break;
+        case 'layovers':
+            bestRoute = routeData.sort((a, b) => a.stops - b.stops)[0];
+            break;
+        default:
+            // Balanced approach - simple scoring formula
+            bestRoute = routeData.sort((a, b) => {
+                const scoreA = (a.duration/60) + (a.price/100) + (a.stops*2);
+                const scoreB = (b.duration/60) + (b.price/100) + (b.stops*2);
+                return scoreA - scoreB;
+            })[0];
+    }
+    
+    if (bestRoute) {
+        // Convert coordinates for visualization
+        const fromX = ((bestRoute.departure.longitude + 180) / 360) * 100 + '%';
+        const fromY = ((90 - bestRoute.departure.latitude) / 180) * 100 + '%'; 
+        const toX = ((bestRoute.arrival.longitude + 180) / 360) * 100 + '%';
+        const toY = ((90 - bestRoute.arrival.latitude) / 180) * 100 + '%';
+        
+        // Create visualization
+        showCustomFlightPath(
+            fromX, 
+            fromY, 
+            toX, 
+            toY, 
+            bestRoute.airline,
+            bestRoute.flightNumber
+        );
+    }
+}
+
+// Enhanced version of showCustomFlightPath to handle real coordinates
+function showCustomFlightPath(startX, startY, endX, endY, airline, flightNumber) {
+    const flightPath = document.querySelector('.flight-path');
+    
+    // Create animated path
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+    svg.style.position = 'absolute';
+    svg.style.top = '0';
+    svg.style.left = '0';
+    svg.style.pointerEvents = 'none';
+    
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    
+    // Create a curved path
+    const pathString = `M ${startX} ${startY} Q ${(parseFloat(startX) + parseFloat(endX)) / 2}% ${Math.min(parseFloat(startY), parseFloat(endY)) - 20}%, ${endX} ${endY}`;
+    
+    path.setAttribute('d', pathString);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', 'rgba(243, 156, 18, 0.8)');
+    path.setAttribute('stroke-width', '3');
+    path.setAttribute('stroke-dasharray', '5,5');
+    path.style.strokeDashoffset = '1000';
+    path.style.animation = 'drawPath 2s linear forwards';
+    
+    svg.appendChild(path);
+    flightPath.appendChild(svg);
+    
+    // Add animated plane along path
+    const plane = document.createElement('div');
+    plane.className = 'animated-route-plane';
+    plane.innerHTML = '<i class="fas fa-plane"></i>';
+    plane.style.position = 'absolute';
+    plane.style.fontSize = '16px';
+    plane.style.color = 'white';
+    plane.style.filter = 'drop-shadow(0 0 5px rgba(0,0,0,0.5))';
+    plane.style.zIndex = '100';
+    plane.style.offsetPath = `path('${pathString}')`;
+    plane.style.animation = 'movePlaneAlongPath 4s linear forwards';
+    
+    // Add flight info tooltip
+    if (airline && flightNumber) {
+        const tooltip = document.createElement('div');
+        tooltip.className = 'flight-tooltip';
+        tooltip.innerHTML = `${airline} ${flightNumber}`;
+        plane.appendChild(tooltip);
+    }
+    
+    flightPath.appendChild(plane);
+}
+    </script>
+
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --accent-color: #f39c12;
+            --background-color: #f5f7fa;
+            --text-color: #2c3e50;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            perspective: 1000px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            animation: fadeInDown 1s ease-out;
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 0.5s forwards;
+        }
+        
+        .plane-animation {
+            position: absolute;
+            top: 50%;
+            left: -100px;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            color: rgba(255, 255, 255, 0.3);
+            animation: flyPlane 15s linear infinite;
+            z-index: 1;
+        }
+        
+        .search-form {
+            background-color: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: -2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transform-style: preserve-3d;
+            transform: rotateX(5deg);
+            transition: transform 0.5s ease;
+            animation: formAppear 1s ease-out 0.8s both;
+        }
+        
+        .search-form:hover {
+            transform: rotateX(0deg) translateZ(10px);
+        }
+        
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            gap: 20px;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, var(--accent-color), #e67e22);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transform-style: preserve-3d;
+            transform: translateZ(20px);
+        }
+        
+        .submit-btn:hover {
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.6);
+            transform: translateY(-2px) translateZ(30px);
+        }
+        
+        .features {
+            padding: 4rem 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        .section-title::after {
+            content: "";
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: var(--primary-color);
+            margin: 15px auto 0;
+            border-radius: 2px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        
+        .feature-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            animation: cardAppear 0.8s ease-out both;
+        }
+        
+        .feature-card:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+        
+        .feature-card:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+        
+        .feature-card:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+        
+        .feature-card:nth-child(4) {
+            animation-delay: 0.8s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px) rotateY(5deg);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .feature-icon::after {
+            content: "";
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: rgba(52, 152, 219, 0.1);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover .feature-icon::after {
+            width: 70px;
+            height: 70px;
+        }
+        
+        .feature-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+        
+        .feature-desc {
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+        
+        .world-map {
+            padding: 2rem 0 4rem;
+            text-align: center;
+        }
+        
+        .map-container {
+            position: relative;
+            height: 400px;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+            margin: 0 auto;
+            max-width: 800px;
+        }
+        
+        .globe {
+            width: 100%;
+            height: 100%;
+            background-image: url('https://cdn.pixabay.com/photo/2021/09/07/07/11/world-map-6603889_1280.jpg');
+            background-size: cover;
+            background-position: center;
+            border-radius: 20px;
+            transform-style: preserve-3d;
+            animation: rotateGlobe 60s linear infinite;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        }
+        
+        .flight-path {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+        
+        .copyright {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes flyPlane {
+            0% {
+                left: -100px;
+                transform: translateY(-50%) rotate(0deg);
+            }
+            100% {
+                left: calc(100% + 100px);
+                transform: translateY(-50%) rotate(0deg);
+            }
+        }
+        
+        @keyframes formAppear {
+            from {
+                opacity: 0;
+                transform: rotateX(20deg) translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: rotateX(5deg) translateY(0);
+            }
+        }
+        
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(50px) rotateY(10deg);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) rotateY(0);
+            }
+        }
+        
+        @keyframes rotateGlobe {
+            0% {
+                transform: rotateY(0deg);
+            }
+            100% {
+                transform: rotateY(360deg);
+            }
+        }
+        
+        /* Media Queries */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .search-form {
+                transform: none;
+            }
+            
+            .feature-card:hover {
+                transform: translateY(-5px);
+            }
+            
+            .map-container {
+                height: 300px;
+            }
+        }
+    
+
+/* API data visualization enhancements */
+.real-flight-route {
+    stroke-width: 3;
+    stroke: rgba(231, 76, 60, 0.8);
+}
+
+.api-status {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.api-status.online {
+    background-color: rgba(46, 204, 113, 0.7);
+}
+
+.api-status.offline {
+    background-color: rgba(231, 76, 60, 0.7);
+}    
+    </style>
+</head>
+<body>
+    <header>
+        <div class="plane-animation">
+            <i class="fas fa-plane"></i>
+        </div>
+        <div class="container">
+            <div class="header-content">
+                <h1>Optimal Flight Route Finder</h1>
+                <p class="tagline">Find the most efficient flight path between cities with our smart algorithm</p>
+            </div>
+        </div>
+    </header>
+    
+    <main class="container">
+        <section class="search-section">
+            <form class="search-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="departure">Departure City</label>
+                        <input type="text" id="departure" placeholder="e.g., New York">
+                    </div>
+                    <div class="form-group">
+                        <label for="destination">Destination City</label>
+                        <input type="text" id="destination" placeholder="e.g., Tokyo">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="date">Travel Date</label>
+                        <input type="date" id="date">
+                    </div>
+                    <div class="form-group">
+                        <label for="priority">Priority</label>
+                        <select id="priority">
+                            <option value="time">Shortest Time</option>
+                            <option value="cost">Lowest Cost</option>
+                            <option value="layovers">Fewest Layovers</option>
+                            <option value="balanced">Balanced</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-search"></i> Find Best Route
+                </button>
+            </form>
+        </section>
+        
+        <section class="features">
+            <h2 class="section-title">Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-route"></i>
+                    </div>
+                    <h3 class="feature-title">Optimized Pathfinding</h3>
+                    <p class="feature-desc">Advanced algorithms compute the most efficient routes based on your preferences.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-sliders-h"></i>
+                    </div>
+                    <h3 class="feature-title">Custom Weighting</h3>
+                    <p class="feature-desc">Prioritize factors like cost, duration, or number of layovers to match your needs.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3 class="feature-title">Real-World Data</h3>
+                    <p class="feature-desc">Integration with airline data provides accurate and up-to-date recommendations.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-friends"></i>
+                    </div>
+                    <h3 class="feature-title">User-Friendly Interface</h3>
+                    <p class="feature-desc">Simple inputs with powerful results, making flight planning intuitive and fast.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="world-map">
+            <h2 class="section-title">Global Flight Network</h2>
+            <div class="map-container">
+                <div class="globe"></div>
+                <div class="flight-path"></div>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <h3>Optimal Flight Route Finder</h3>
+            <p class="copyright">© 2023 Flight Route Finder. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+<script>
+    // Add additional flight animations
+    document.addEventListener('DOMContentLoaded', function() {
+        setInterval(createRandomFlight, 3000);
+        
+        // Initialize the network visualization in the globe
+        initializeFlightNetwork();
+        
+        // Add floating dots animation to the background
+        createBackgroundNetwork();
+    });
+    
+    
+    // Apply 3D effect on scroll
+    window.addEventListener('scroll', function() {
+        const featureCards = document.querySelectorAll('.feature-card');
+        const scrollPosition = window.scrollY;
+        
+        featureCards.forEach((card, index) => {
+            const rotateY = (scrollPosition / 1000) * (index % 2 === 0 ? 1 : -1);
+            const translateZ = 20 + (scrollPosition / 100);
+            card.style.transform = `translateY(-5px) rotateY(${rotateY}deg) translateZ(${Math.min(translateZ, 40)}px)`;
+        });
+        
+        // Parallax effect for the globe
+        const globe = document.querySelector('.globe');
+        if (globe) {
+            const globePosition = globe.getBoundingClientRect();
+            if (globePosition.top < window.innerHeight && globePosition.bottom > 0) {
+                const parallaxValue = (window.innerHeight - globePosition.top) / 20;
+                globe.style.transform = `rotateY(${scrollPosition / 20}deg) scale(${1 + parallaxValue/100})`;
+            }
+        }
+    });
+    
+   
+        
+    
+    
+    function createFlightConnection(x1, y1, x2, y2, container) {
+        const connection = document.createElement('div');
+        connection.className = 'flight-connection';
+        
+        // Calculate position and dimensions for the line
+        const length = Math.sqrt(
+            Math.pow(parseFloat(x2) - parseFloat(x1), 2) + 
+            Math.pow(parseFloat(y2) - parseFloat(y1), 2)
+        );
+        
+        const angle = Math.atan2(
+            parseFloat(y2) - parseFloat(y1), 
+            parseFloat(x2) - parseFloat(x1)
+        ) * 180 / Math.PI;
+        
+        connection.style.width = `${length}%`;
+        connection.style.left = x1;
+        connection.style.top = y1;
+        connection.style.transform = `rotate(${angle}deg)`;
+        connection.style.transformOrigin = '0 0';
+        
+        // Add a moving plane animation
+        const movingPlane = document.createElement('div');
+        movingPlane.className = 'moving-plane';
+        movingPlane.innerHTML = '<i class="fas fa-plane"></i>';
+        
+        // Random animation duration based on length
+        const duration = 5 + Math.random() * 5;
+        movingPlane.style.animation = `movePlane ${duration}s linear infinite`;
+        
+        connection.appendChild(movingPlane);
+        container.appendChild(connection);
+    }
+    
+    // Create background network effect
+    function createBackgroundNetwork() {
+        const container = document.createElement('div');
+        container.className = 'background-network';
+        document.body.appendChild(container);
+        
+    }
+    // Add this to your existing script section
+
+// Handle form submission
+document.querySelector('.search-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    this.classList.add('loading');
+    
+    // Simulate search delay
+    setTimeout(() => {
+        this.classList.remove('loading');
+        
+        // Animate the globe when results would be shown
+        const globe = document.querySelector('.globe');
+        if (globe) {
+            globe.style.animation = 'none';
+            globe.offsetHeight; // Trigger reflow
+            globe.style.animation = 'rotateGlobe 30s linear infinite';
+            
+            // Create custom flight path animation
+            showCustomFlightPath(
+                document.getElementById('departure').value,
+                document.getElementById('destination').value
+            );
+        }
+    }, 2000);
+});
+
+function showCustomFlightPath(from, to) {
+    // This would ideally match input cities to the map
+    
+    
+    // Add keyframe animation for drawing the path
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @keyframes drawPath {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+        
+        @keyframes movePlaneAlongPath {
+            0% {
+                offset-distance: 0%;
+            }
+            100% {
+                offset-distance: 100%;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+</script>
+</body>
+
+</html></section></div>

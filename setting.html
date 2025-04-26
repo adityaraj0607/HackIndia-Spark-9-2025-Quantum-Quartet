@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Scanner - Settings</title>
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --light-bg: #f5f5f5;
+            --dark-bg: #333;
+            --light-text: #f5f5f5;
+            --dark-text: #333;
+            --success-color: #2ecc71;
+            --accent-color: #f72585;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            position: relative;
+        }
+        
+        .settings-container {
+            display: flex;
+            margin-top: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .settings-tabs {
+            width: 250px;
+            background-color: var(--secondary-color);
+            color: var(--light-text);
+        }
+        
+        .tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .tab:hover, .tab.active {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        .tab i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .settings-content {
+            flex: 1;
+            padding: 20px;
+            background-color: white;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .settings-section {
+            display: none;
+        }
+        
+        .settings-section.active {
+            display: block;
+        }
+        
+        h2 {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            color: var(--secondary-color);
+        }
+        
+        .setting-item {
+            margin-bottom: 20px;
+        }
+        
+        .setting-item label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .setting-item select, 
+        .setting-item input[type="text"], 
+        .setting-item input[type="email"], 
+        .setting-item input[type="password"],
+        .setting-item input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            transition: border-color 0.3s, background-color 0.3s, color 0.3s;
+        }
+        
+        .setting-item select:focus, 
+        .setting-item input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.3s;
+            font-size: 1rem;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        /* Dark Mode Styles */
+        body.dark-theme {
+            background-color: #222;
+            color: var(--light-text);
+        }
+        
+        body.dark-theme .settings-content {
+            background-color: #333;
+            color: var(--light-text);
+        }
+        
+        body.dark-theme .setting-item select,
+        body.dark-theme .setting-item input[type="text"],
+        body.dark-theme .setting-item input[type="email"],
+        body.dark-theme .setting-item input[type="password"],
+        body.dark-theme .setting-item input[type="number"] {
+            background-color: #444;
+            color: white;
+            border-color: #555;
+        }
+        
+        body.dark-theme h2 {
+            color: #3498db;
+            border-bottom-color: #555;
+        }
+        
+        /* High Contrast Mode */
+        body.high-contrast {
+            background-color: black;
+            color: white;
+        }
+        
+        body.high-contrast .settings-content {
+            background-color: black;
+            color: white;
+        }
+        
+        body.high-contrast .settings-tabs {
+            background-color: #222;
+        }
+        
+        body.high-contrast .tab.active,
+        body.high-contrast .tab:hover {
+            background-color: yellow;
+            color: black;
+        }
+        
+        body.high-contrast h2 {
+            color: yellow;
+            border-bottom-color: white;
+        }
+        
+        body.high-contrast .btn {
+            background-color: yellow;
+            color: black;
+            font-weight: bold;
+        }
+        
+        body.high-contrast input:checked + .slider {
+            background-color: yellow;
+        }
+        
+        body.high-contrast .slider:before {
+            background-color: black;
+        }
+        
+        /* Font Size Variations */
+        body.font-small {
+            font-size: 14px;
+        }
+        
+        body.font-medium {
+            font-size: 16px;
+        }
+        
+        body.font-large {
+            font-size: 18px;
+        }
+        
+        body.font-xlarge {
+            font-size: 20px;
+        }
+        
+        /* Reduce Animations */
+        body.reduce-animations * {
+            transition: none !important;
+            animation: none !important;
+        }
+        
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 25px;
+            background-color: var(--success-color);
+            color: white;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .toast.error {
+            background-color: #e74c3c;
+        }
+        
+        /* Back button */
+        .back-button {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+        
+        .back-button:hover {
+            opacity: 0.8;
+        }
+        
+        .back-button i {
+            margin-right: 6px;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .settings-container {
+                flex-direction: column;
+            }
+            
+            .settings-tabs {
+                width: 100%;
+                display: flex;
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                flex: 1;
+                min-width: 120px;
+                padding: 10px;
+                justify-content: center;
+                font-size: 0.9rem;
+            }
+            
+            .tab i {
+                margin-right: 5px;
+            }
+            
+            .back-button {
+                top: 15px;
+                transform: none;
+            }
+            
+            header h1 {
+                margin-top: 30px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .tab {
+                min-width: 100%;
+            }
+            
+            .settings-tabs {
+                max-height: 250px;
+                overflow-y: auto;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="new.html" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+        <h1>Flight Scanner Settings</h1>
+    </header>
+    
+    <div class="container">
+        <div class="settings-container">
+            <div class="settings-tabs">
+                <div class="tab active" data-target="display">
+                    <i class="fas fa-desktop"></i> Display
+                </div>
+                <div class="tab" data-target="notifications">
+                    <i class="fas fa-bell"></i> Notifications
+                </div>
+                <div class="tab" data-target="search">
+                    <i class="fas fa-search"></i> Search
+                </div>
+                <div class="tab" data-target="accessibility">
+                    <i class="fas fa-universal-access"></i> Accessibility
+                </div>
+                <div class="tab" data-target="account">
+                    <i class="fas fa-user"></i> Account
+                </div>
+                <div class="tab" data-target="privacy">
+                    <i class="fas fa-lock"></i> Privacy
+                </div>
+            </div>
+            
+            <div class="settings-content">
+                <div id="display" class="settings-section active">
+                    <h2>Display Preferences</h2>
+                    
+                    <div class="setting-item">
+                        <label for="theme">Theme</label>
+                        <select id="theme">
+                            <option value="light">Light Mode</option>
+                            <option value="dark">Dark Mode</option>
+                            <option value="system">System Default</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label for="currency">Currency</label>
+                        <select id="currency">
+                            <option value="USD">US Dollar (USD)</option>
+                            <option value="EUR">Euro (EUR)</option>
+                            <option value="GBP">British Pound (GBP)</option>
+                            <option value="JPY">Japanese Yen (JPY)</option>
+                            <option value="INR">Indian Rupee (INR)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label for="dateFormat">Date Format</label>
+                        <select id="dateFormat">
+                            <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                            <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                            <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label for="tempUnit">Temperature Unit</label>
+                        <select id="tempUnit">
+                            <option value="celsius">Celsius (°C)</option>
+                            <option value="fahrenheit">Fahrenheit (°F)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="notifications" class="settings-section">
+                    <h2>Notification Settings</h2>
+                    
+                    <div class="setting-item">
+                        <label>Price Alerts</label>
+                        <label class="switch">
+                            <input type="checkbox" id="priceAlerts" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <p class="setting-description">Get notified when prices drop for your saved flights.</p>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>Travel Deals</label>
+                        <label class="switch">
+                            <input type="checkbox" id="travelDeals" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <p class="setting-description">Receive notifications about special deals and offers.</p>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>Email Notifications</label>
+                        <label class="switch">
+                            <input type="checkbox" id="emailNotifications" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <p class="setting-description">Receive notifications via email.</p>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>Push Notifications</label>
+                        <label class="switch">
+                            <input type="checkbox" id="pushNotifications">
+                            <span class="slider"></span>
+                        </label>
+                        <p class="setting-description">Receive push notifications in your browser.</p>
+                    </div>
+                </div>
+                
+                <div id="search" class="settings-section">
+                    <h2>Search Preferences</h2>
+                    
+                    <div class="setting-item">
+                        <label for="homeAirport">Default Departure Airport</label>
+                        <input type="text" id="homeAirport" placeholder="Example: JFK">
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label for="cabinClass">Default Cabin Class</label>
+                        <select id="cabinClass">
+                            <option value="economy">Economy</option>
+                            <option value="premium">Premium Economy</option>
+                            <option value="business">Business</option>
+                            <option value="first">First Class</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label for="passengers">Default Number of Passengers</label>
+                        <input type="number" id="passengers" min="1" max="9" value="1">
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>Include Nearby Airports</label>
+                        <label class="switch">
+                            <input type="checkbox" id="nearbyAirports" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>Direct Flights Only</label>
+                        <label class="switch">
+                            <input type="checkbox" id="directFlights">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div id="accessibility" class="settings-section">
+                    <h2>Accessibility</h2>
+                    
+                    <div class="setting-item">
+                        <label for="fontSize">Font Size</label>
+                        <select id="fontSize">
+                            <option value="small">Small</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="large">Large</option>
+                            <option value="xlarge">Extra Large</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>High Contrast Mode</label>
+                        <label class="switch">
+                            <input type="checkbox" id="highContrastMode">
+                            <span class="slider"></span>
+                        </label>
+                        <p class="setting-description">Increase contrast for better visibility.</p>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>Screen Reader Optimization</label>
+                        <label class="switch">
+                            <input type="checkbox" id="screenReaderOpt">
+                            <span class="slider"></span>
+                        </label>
+                        <p class="setting-description">Optimize content for screen readers.</p>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>Reduce Animations</label>
+                        <label class="switch">
+                            <input type="checkbox" id="reduceAnimations">
+                            <span class="slider"></span>
+                        </label>
+                        <p class="setting-description">Minimize animations throughout the site.</p>
+                    </div>
+                </div>
+                
+                <div id="account" class="settings-section">
+                    <h2>Account Settings</h2>
+                    
+                    <div class="setting-item">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" placeholder="your.email@example.com">
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label for="currentPassword">Current Password</label>
+                        <input type="password" id="currentPassword">
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label for="newPassword">New Password</label>
+                        <input type="password" id="newPassword">
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label for="confirmPassword">Confirm New Password</label>
+                        <input type="password" id="confirmPassword">
+                    </div>
+                    
+                    <button class="btn" id="updateAccountBtn">Update Account</button>
+                </div>
+                
+                <div id="privacy" class="settings-section">
+                    <h2>Privacy Settings</h2>
+                    
+                    <div class="setting-item">
+                        <label>Allow Cookies</label>
+                        <label class="switch">
+                            <input type="checkbox" id="allowCookies" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <p class="setting-description">Allow us to use cookies to personalize your experience.</p>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>Share Usage Data</label>
+                        <label class="switch">
+                            <input type="checkbox" id="shareUsageData" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <p class="setting-description">Share anonymized usage data to help improve our service.</p>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>Personalized Ads</label>
+                        <label class="switch">
+                            <input type="checkbox" id="personalizedAds" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <p class="setting-description">Receive personalized advertisements based on your interests.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.tab');
+            
+            // Load saved settings from localStorage
+            loadSavedSettings();
+            
+            // Tab switching functionality
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Hide all sections
+                    document.querySelectorAll('.settings-section').forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    
+                    // Show selected section
+                    const target = this.getAttribute('data-target');
+                    document.getElementById(target).classList.add('active');
+                });
+            });
+            
+            // Theme setting
+            const themeSelector = document.getElementById('theme');
+            themeSelector.addEventListener('change', function() {
+                applyTheme(this.value);
+                saveSetting('theme', this.value);
+                showToast('Theme updated!');
+            });
+            
+            // Currency setting
+            const currencySelector = document.getElementById('currency');
+            currencySelector.addEventListener('change', function() {
+                saveSetting('currency', this.value);
+                updateCurrencyDisplay(this.value);
+                showToast('Currency preference saved!');
+            });
+            
+            // Date format setting
+            const dateFormatSelector = document.getElementById('dateFormat');
+            dateFormatSelector.addEventListener('change', function() {
+                saveSetting('dateFormat', this.value);
+                updateDateDisplay(this.value);
+                showToast('Date format updated!');
+            });
+            
+            // Temperature unit setting
+            const tempUnitSelector = document.getElementById('tempUnit');
+            tempUnitSelector.addEventListener('change', function() {
+                saveSetting('tempUnit', this.value);
+                showToast('Temperature unit updated!');
+            });
+            
+            // Font size setting
+            const fontSizeSelector = document.getElementById('fontSize');
+            fontSizeSelector.addEventListener('change', function() {
+                applyFontSize(this.value);
+                saveSetting('fontSize', this.value);
+                showToast('Font size updated!');
+            });
+            
+            // High contrast mode
+            const highContrastToggle = document.getElementById('highContrastMode');
+            highContrastToggle.addEventListener('change', function() {
+                applyHighContrastMode(this.checked);
+                saveSetting('highContrastMode', this.checked);
+                showToast(`High contrast mode ${this.checked ? 'enabled' : 'disabled'}`);
+            });
+            
+            // Reduce animations
+            const reduceAnimationsToggle = document.getElementById('reduceAnimations');
+            reduceAnimationsToggle.addEventListener('change', function() {
+                applyReduceAnimations(this.checked);
+                saveSetting('reduceAnimations', this.checked);
+                showToast(`Animations ${this.checked ? 'reduced' : 'enabled'}`);
+            });
+            
+            // Screen reader optimization
+            const screenReaderToggle = document.getElementById('screenReaderOpt');
+            screenReaderToggle.addEventListener('change', function() {
+                applyScreenReaderOptimization(this.checked);
+                saveSetting('screenReaderOpt', this.checked);
+                showToast(`Screen reader optimizations ${this.checked ? 'enabled' : 'disabled'}`);
+            });
+            
+            // Home airport
+            const homeAirport = document.getElementById('homeAirport');
+            homeAirport.addEventListener('change', function() {
+                saveSetting('homeAirport', this.value);
+                showToast('Default airport updated!');
+            });
+            
+            // Cabin class
+            const cabinClass = document.getElementById('cabinClass');
+            cabinClass.addEventListener('change', function() {
+                saveSetting('cabinClass', this.value);
+                showToast('Default cabin class updated!');
+            });
+            
+            // Passengers
+            const passengers = document.getElementById('passengers');
+            passengers.addEventListener('change', function() {
+                saveSetting('passengers', this.value);
+                showToast('Default passenger count updated!');
+            });
+            
+            // Handle checkbox toggles (notifications, search prefs, privacy)
+            const allToggles = document.querySelectorAll('.switch input[type="checkbox"]');
+            allToggles.forEach(toggle => {
+                toggle.addEventListener('change', function() {
+                    const settingId = this.id;
+                    if (settingId) {
+                        saveSetting(settingId, this.checked);
+                        showToast(`Setting ${this.checked ? 'enabled' : 'disabled'}`);
+                    }
+                });
+            });
+            
+            // Account update button
+            const updateAccountBtn = document.getElementById('updateAccountBtn');
+            updateAccountBtn.addEventListener('click', function() {
+                const email = document.getElementById('email').value;
+                const currentPassword = document.getElementById('currentPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                if (!email) {
+                    showToast('Please enter your email address', 'error');
+                    return;
+                }
+                
+                if (newPassword && !currentPassword) {
+                    showToast('Please enter your current password', 'error');
+                    return;
+                }
+                
+                if (newPassword && newPassword !== confirmPassword) {
+                    showToast('New passwords do not match', 'error');
+                    return;
+                }
+                
+                // Save email (in a real app, you'd send this to the server)
+                saveSetting('email', email);
+                
+                // In a real app, password change would happen server-side
+                // Here we just simulate success and clear the password fields
+                if (newPassword) {
+                    document.getElementById('currentPassword').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmPassword').value = '';
+                }
+                
+                showToast('Account settings updated successfully!');
+            });
+        });
+        
+        // Function to save setting to localStorage
+        function saveSetting(name, value) {
+            const settings = JSON.parse(localStorage.getItem('flightScannerSettings') || '{}');
+            settings[name] = value;
+            localStorage.setItem('flightScannerSettings', JSON.stringify(settings));
+        }
+        
+        // Function to load saved settings
+        function loadSavedSettings() {
+            const settings = JSON.parse(localStorage.getItem('flightScannerSettings') || '{}');
+            
+            // Apply theme
+            if (settings.theme) {
+                document.getElementById('theme').value = settings.theme;
+                applyTheme(settings.theme);
+            }
+            
+            // Apply font size
+            if (settings.fontSize) {
+                document.getElementById('fontSize').value = settings.fontSize;
+                applyFontSize(settings.fontSize);
+            }
+            
+            // Apply high contrast mode
+            if (settings.highContrastMode !== undefined) {
+                document.getElementById('highContrastMode').checked = settings.highContrastMode;
+                applyHighContrastMode(settings.highContrastMode);
+            }
+            
+            // Apply reduce animations
+            if (settings.reduceAnimations !== undefined) {
+                document.getElementById('reduceAnimations').checked = settings.reduceAnimations;
+                applyReduceAnimations(settings.reduceAnimations);
+            }
+            
+            // Apply screen reader optimizations
+            if (settings.screenReaderOpt !== undefined) {
+                document.getElementById('screenReaderOpt').checked = settings.screenReaderOpt;
+                applyScreenReaderOptimization(settings.screenReaderOpt);
+            }
+            
+            // Load all other settings
+            for (const [key, value] of Object.entries(settings)) {
+                const element = document.getElementById(key);
+                if (element) {
+                    if (element.type === 'checkbox') {
+                        element.checked = value;
+                    } else {
+                        element.value = value;
+                    }
+                }
+            }
+        }
+        
+        // Function to apply theme
+        function applyTheme(theme) {
+            const body = document.body;
+            
+            // Remove existing theme classes
+            body.classList.remove('dark-theme');
+            
+            // Apply selected theme
+            if (theme === 'dark') {
+                body.classList.add('dark-theme');
+            } else if (theme === 'system') {
+                // Check system preference
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    body.classList.add('dark-theme');
+                }
+            }
+        }
+        
+        // Function to apply font size
+        function applyFontSize(size) {
+            const body = document.body;
+            
+            // Remove existing font size classes
+            body.classList.remove('font-small', 'font-medium', 'font-large', 'font-xlarge');
+            
+            // Apply selected font size
+            body.classList.add(`font-${size}`);
+        }
+        
+        // Function to apply high contrast mode
+        function applyHighContrastMode(enabled) {
+            const body = document.body;
+            
+            if (enabled) {
+                body.classList.add('high-contrast');
+            } else {
+                body.classList.remove('high-contrast');
+            }
+        }
+        
+        // Function to apply reduced animations
+        function applyReduceAnimations(enabled) {
+            const body = document.body;
+            
+            if (enabled) {
+                body.classList.add('reduce-animations');
+            } else {
+                body.classList.remove('reduce-animations');
+            }
+        }
+        
+        // Function to apply screen reader optimization
+        function applyScreenReaderOptimization(enabled) {
+            if (enabled) {
+                document.documentElement.setAttribute('role', 'application');
+                
+                // Add ARIA labels to sections
+                const sections = document.querySelectorAll('.settings-section');
+                sections.forEach(section => {
+                    section.setAttribute('role', 'region');
+                    section.setAttribute('aria-label', section.querySelector('h2').textContent);
+                });
+                
+                // Add more descriptive labels to form elements
+                const inputs = document.querySelectorAll('input, select');
+                inputs.forEach(input => {
+                    const labelEl = input.closest('.setting-item').querySelector('label:first-child');
+                    if (labelEl) {
+                        input.setAttribute('aria-label', labelEl.textContent);
+                    }
+                });
+            } else {
+                document.documentElement.removeAttribute('role');
+                
+                // Remove added ARIA attributes
+                document.querySelectorAll('[role="region"]').forEach(el => {
+                    el.removeAttribute('role');
+                    el.removeAttribute('aria-label');
+                });
+            }
+        }
+        
+        // Function to update currency display
+        function updateCurrencyDisplay(currency) {
+            // In a real app, this would update all currency displays across the site
+            const currencySymbols = {
+                USD: '$',
+                EUR: '€',
+                GBP: '£',
+                JPY: '¥',
+                INR: '₹'
+            };
+            
+            console.log(`Currency updated to: ${currencySymbols[currency] || currency}`);
+            // Example of how you would update DOM elements:
+            // document.querySelectorAll('.price').forEach(el => {
+            //     const value = parseFloat(el.dataset.value);
+            //     el.textContent = `${currencySymbols[currency]}${value.toFixed(2)}`;
+            // });
+        }
+        
+        // Function to update date display
+        function updateDateDisplay(format) {
+            // In a real app, this would update all date displays
+            const today = new Date();
+            let formattedDate = '';
+            
+            switch(format) {
+                case 'MM/DD/YYYY':
+                    formattedDate = `${(today.getMonth()+1).toString().padStart(2,'0')}/${today.getDate().toString().padStart(2,'0')}/${today.getFullYear()}`;
+                    break;
+                case 'DD/MM/YYYY':
+                    formattedDate = `${today.getDate().toString().padStart(2,'0')}/${(today.getMonth()+1).toString().padStart(2,'0')}/${today.getFullYear()}`;
+                    break;
+                case 'YYYY-MM-DD':
+                    formattedDate = `${today.getFullYear()}-${(today.getMonth()+1).toString().padStart(2,'0')}-${today.getDate().toString().padStart(2,'0')}`;
+                    break;
+            }
+            
+            console.log(`Date format updated to: ${formattedDate}`);
+            // Example of how you would update DOM elements:
+            // document.querySelectorAll('.date').forEach(el => {
+            //     const date = new Date(el.dataset.date);
+            //     el.textContent = formatDate(date, format);
+            // });
+        }
+        
+        // Function to show toast notification
+        function showToast(message, type = 'success') {
+            // Remove existing toast
+            const existingToast = document.querySelector('.toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+            
+            // Create new toast
+            const toast = document.createElement('div');
+            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            // Show toast with a slight delay to allow for DOM rendering
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            
+            // Hide toast after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mumbai Travel Guide & Flight Scanner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0a6ebd;
+            --secondary: #08a5e9;
+            --accent: #ff6b6b;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --shadow: 0 4px 12px rgba(0,0,0,0.1);
+            --radius: 8px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--dark);
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+        
+        header {
+            background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+                url('https://images.unsplash.com/photo-1570168007204-dfb528c6958f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+        
+        .navbar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--secondary);
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            padding: 0 20px;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .hero-subtext {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .search-bar {
+            background: white;
+            border-radius: var(--radius);
+            padding: 15px 20px;
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            box-shadow: var(--shadow);
+            flex-wrap: wrap;
+        }
+        
+        .search-item {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .search-item label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+        
+        .search-item input, .search-item select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px;
+            font-family: inherit;
+        }
+        
+        .search-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+            align-self: flex-end;
+        }
+        
+        .search-btn:hover {
+            background: var(--secondary);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .section {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 40px;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .section-body {
+            padding: 25px;
+        }
+        
+        .tag-list {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .tag {
+            background: var(--light);
+            color: var(--dark);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tag:hover, .tag.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .tag img {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .itinerary {
+            padding: 0 10px;
+        }
+        
+        .itinerary-day {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--light-gray);
+            position: relative;
+        }
+        
+        .itinerary-day:last-child {
+            border-bottom: none;
+        }
+        
+        .itinerary-day h3 {
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .itinerary-day h3::before {
+            content: '';
+            display: block;
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+        
+        .itinerary-day ul {
+            list-style: none;
+            padding-left: 40px;
+        }
+        
+        .itinerary-day li {
+            margin-bottom: 12px;
+            position: relative;
+        }
+        
+        .itinerary-day li::before {
+            content: '•';
+            color: var(--secondary);
+            font-weight: bold;
+            position: absolute;
+            left: -20px;
+        }
+        
+        .attractions {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .attraction-card {
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+            position: relative;
+        }
+        
+        .attraction-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .attraction-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .attraction-meta {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255,255,255,0.9);
+            padding: 5px 10px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .content h3 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .content p {
+            color: var(--gray);
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+        
+        .content .btn {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        
+        .content .btn:hover {
+            background: var(--secondary);
+        }
+        
+        .flight-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .flight-table th, .flight-table td {
+            padding: 15px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .flight-table th {
+            font-weight: 600;
+            color: var(--dark);
+            cursor: pointer;
+            background-color: var(--light);
+            position: relative;
+        }
+        
+        .flight-table th:hover {
+            background-color: #e2e6ea;
+        }
+        
+        .flight-table th::after {
+            content: '⌄';
+            display: inline-block;
+            margin-left: 5px;
+            font-size: 1.2rem;
+        }
+        
+        .flight-table tbody tr:hover {
+            background-color: rgba(0, 123, 255, 0.05);
+        }
+        
+        .flight-table .airline {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .flight-table .airline img {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+        }
+        
+        .flight-price {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .flight-duration {
+            color: var(--dark);
+            font-weight: 500;
+        }
+        
+        .hostels {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .hostel-card {
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+        }
+        
+        .hostel-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .hostel-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        
+        .hostel-content {
+            padding: 20px;
+        }
+        
+        .hostel-card h3 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .hostel-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .hostel-rating {
+            color: #ff9800;
+            font-weight: 600;
+        }
+        
+        .hostel-price {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .hostel-location {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .hostel-card p {
+            color: var(--gray);
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+        
+        .cta-section {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: white;
+            text-align: center;
+            padding: 60px 20px;
+            border-radius: var(--radius);
+            margin-bottom: 40px;
+        }
+        
+        .cta-section h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        
+        .cta-section p {
+            max-width: 600px;
+            margin: 0 auto 30px;
+            opacity: 0.9;
+        }
+        
+        .cta-btn {
+            display: inline-block;
+            background: white;
+            color: var(--primary);
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .cta-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .social-icons a {
+            color: white;
+            font-size: 1.2rem;
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+        
+        .social-icons a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .search-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .search-item {
+                width: 100%;
+            }
+            
+            .search-btn {
+                width: 100%;
+            }
+            
+            .attractions, .hostels {
+                grid-template-columns: 1fr;
+            }
+            
+            .flight-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <a href="#" class="logo">FlightScanner</a>
+            <div class="nav-links">
+                <a href="#">Home</a>
+                <a href="#">Flights</a>
+                <a href="#">Hotels</a>
+                <a href="#">Guides</a>
+                <a href="#">Contact</a>
+            </div>
+        </div>
+        
+        <div class="hero-content">
+            <h1>Discover Mumbai</h1>
+            <p class="hero-subtext">Explore the best of the City of Dreams - Attractions, Flights & Accommodations</p>
+            
+            <div class="search-bar">
+                <div class="search-item">
+                    <label for="from">From</label>
+                    <input type="text" id="from" placeholder="City or Airport">
+                </div>
+                <div class="search-item">
+                    <label for="to">To</label>
+                    <input type="text" id="to" value="Mumbai (BOM)" readonly>
+                </div>
+                <div class="search-item">
+                    <label for="depart">Depart</label>
+                    <input type="date" id="depart">
+                </div>
+                <div class="search-item">
+                    <label for="return">Return</label>
+                    <input type="date" id="return">
+                </div>
+                <button class="search-btn">Search Flights</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Explore Mumbai</h2>
+            </div>
+            <div class="section-body">
+                <div class="tag-list">
+                    <div class="tag active">
+                        <img src="https://cdn-icons-png.flaticon.com/128/3078/3078931.png" alt="">
+                        All
+                    </div>
+                    <div class="tag">
+                        <img src="https://cdn-icons-png.flaticon.com/128/3965/3965406.png" alt="">
+                        Attractions
+                    </div>
+                    <div class="tag">
+                        <img src="https://cdn-icons-png.flaticon.com/128/2232/2232688.png" alt="">
+                        Food
+                    </div>
+                    <div class="tag">
+                        <img src="https://cdn-icons-png.flaticon.com/128/2784/2784589.png" alt="">
+                        Shopping
+                    </div>
+                    <div class="tag">
+                        <img src="https://cdn-icons-png.flaticon.com/128/3774/3774239.png" alt="">
+                        Nightlife
+                    </div>
+                    <div class="tag">
+                        <img src="https://cdn-icons-png.flaticon.com/128/9640/9640603.png" alt="">
+                        Cultural
+                    </div>
+                </div>
+                
+                <div class="itinerary">
+                    <div class="itinerary-day">
+                        <h3>Day 1: South Mumbai Exploration</h3>
+                        <ul>
+                            <li>Morning: Visit Gateway of India & Elephanta Caves</li>
+                            <li>Afternoon: Explore Colaba Causeway for shopping</li>
+                            <li>Evening: Marine Drive sunset walk</li>
+                        </ul>
+                    </div>
+                    <div class="itinerary-day">
+                        <h3>Day 2: Cultural Mumbai</h3>
+                        <ul>
+                            <li>Morning: Chhatrapati Shivaji Terminus & Crawford Market</li>
+                            <li>Afternoon: Haji Ali Dargah & Mahalaxmi Temple</li>
+                            <li>Evening: Explore Bandra neighborhood</li>
+                        </ul>
+                    </div>
+                    <div class="itinerary-day">
+                        <h3>Day 3: Modern Mumbai</h3>
+                        <ul>
+                            <li>Morning: Sanjay Gandhi National Park & Kanheri Caves</li>
+                            <li>Afternoon: Juhu Beach</li>
+                            <li>Evening: Bollywood tour or show</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Popular Places to Visit</h2>
+            </div>
+            <div class="section-body">
+                <div class="attractions">
+                    <div class="attraction-card">
+                        <div class="attraction-meta">Must Visit</div>
+                        <img src="https://images.unsplash.com/photo-1567157577867-05ccb1388e66?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Gateway of India">
+                        <div class="content">
+                            <h3>Gateway of India</h3>
+                            <p>Iconic arch monument built during the 20th century, overlooking the Arabian Sea.</p>
+                            <a href="#" class="btn">Learn More</a>
+                        </div>
+                    </div>
+                    <div class="attraction-card">
+                        <div class="attraction-meta">Scenic</div>
+                        <img src="https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Marine Drive">
+                        <div class="content">
+                            <h3>Marine Drive</h3>
+                            <p>A 3.6-kilometer-long boulevard that stretches along the coastline of South Mumbai.</p>
+                            <a href="#" class="btn">Learn More</a>
+                        </div>
+                    </div>
+                    <div class="attraction-card">
+                        <div class="attraction-meta">Historical</div>
+                        <img src="https://images.unsplash.com/photo-1603262110263-fb0112e7cc33?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Elephanta Caves">
+                        <div class="content">
+                            <h3>Elephanta Caves</h3>
+                            <p>UNESCO World Heritage Site with ancient cave temples dedicated to Lord Shiva.</p>
+                            <a href="#" class="btn">Learn More</a>
+                        </div>
+                    </div>
+                    <div class="attraction-card">
+                        <div class="attraction-meta">Architectural</div>
+                        <img src="https://images.unsplash.com/photo-1539872209618-fb1770aa6ff8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="CST Railway Station">
+                        <div class="content">
+                            <h3>Chhatrapati Shivaji Terminus</h3>
+                            <p>Historic railway station known for its Victorian Gothic Revival architecture.</p>
+                            <a href="#" class="btn">Learn More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Flight Information</h2>
+            </div>
+            <div class="section-body">
+                <div class="tag-list">
+                    <div class="tag active">Best</div>
+                    <div class="tag">Cheapest</div>
+                    <div class="tag">Fastest</div>
+                    <div class="tag">Morning</div>
+                    <div class="tag">Evening</div>
+                </div>
+                
+                <table class="flight-table" id="flightTable">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable(0)">Airline</th>
+                            <th onclick="sortTable(1)">Departure</th>
+                            <th onclick="sortTable(2)">Arrival</th>
+                            <th onclick="sortTable(3)">Duration</th>
+                            <th onclick="sortTable(4)">Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="airline">
+                                    <img src="https://logos.skyscnr.com/images/airlines/favicon/6E.png" alt="IndiGo">
+                                    IndiGo
+                                </div>
+                            </td>
+                            <td>09:15 AM</td>
+                            <td>11:30 AM</td>
+                            <td class="flight-duration">2h 15m</td>
+                            <td class="flight-price">₹3,500</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="airline">
+                                    <img src="https://logos.skyscnr.com/images/airlines/favicon/SG.png" alt="SpiceJet">
+                                    SpiceJet
+                                </div>
+                            </td>
+                            <td>11:45 AM</td>
+                            <td>01:55 PM</td>
+                            <td class="flight-duration">2h 10m</td>
+                            <td class="flight-price">₹4,200</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="airline">
+                                    <img src="https://logos.skyscnr.com/images/airlines/favicon/AI.png" alt="Air India">
+                                    Air India
+                                </div>
+                            </td>
+                            <td>08:30 AM</td>
+                            <td>10:45 AM</td>
+                            <td class="flight-duration">2h 15m</td>
+                            <td class="flight-price">₹4,800</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="airline">
+                                    <img src="https://logos.skyscnr.com/images/airlines/favicon/UK.png" alt="Vistara">
+                                    Vistara
+                                </div>
+                            </td>
+                            <td>06:45 PM</td>
+                            <td>09:00 PM</td>
+                            <td class="flight-duration">2h 15m</td>
+                            <td class="flight-price">₹5,500</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="airline">
+                                    <img src="https://logos.skyscnr.com/images/airlines/favicon/G8.png" alt="Go First">
+                                    Go First
+                                </div>
+                            </td>
+                            <td>07:30 AM</td>
+                            <td>09:45 AM</td>
+                            <td class="flight-duration">2h 15m</td>
+                            <td class="flight-price">₹3,900</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <h2>Book Your Mumbai Adventure Today!</h2>
+            <p>Limited-time offers available for flights and accommodations. Don't miss out on your chance to explore the city of dreams.</p>
+            <a href="#" class="cta-btn">Book Now</a>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Best Hostels & Budget Accommodations</h2>
+            </div>
+            <div class="section-body">
+                <div class="tag-list">
+                    <div class="tag active">All</div>
+                    <div class="tag">Hostels</div>
+                    <div class="tag">Budget Hotels</div>
+                    <div class="tag">Guest Houses</div>
+                </div>
+                
+                <div class="hostels">
+                    <div class="hostel-card">
+                        <img src="https://images.unsplash.com/photo-1520277739336-7bf67edfa768?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Zostel Mumbai">
+                        <div class="hostel-content">
+                            <h3>Zostel Mumbai</h3>
+                            <div class="hostel-meta">
+                                <div class="hostel-rating">⭐ 4.2/5</div>
+                                <div class="hostel-price">₹800/night</div>
+                            </div>
+                            <div class="hostel-location">
+                                <i class="fas fa-map-marker-alt"></i> Bandra
+                            </div>
+                            <p>Well-designed backpacker hostel with excellent social atmosphere.</p>
+                            <a href="#" class="btn">Book Now</a>
+                        </div>
+                    </div>
+                    
+                    <div class="hostel-card">
+                        <img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Backpacker Panda Colaba">
+                        <div class="hostel-content">
+                            <h3>Backpacker Panda Colaba</h3>
+                            <div class="hostel-meta">
+                                <div class="hostel-rating">⭐ 4.0/5</div>
+                                <div class="hostel-price">₹650/night</div>
+                            </div>
+                            <div class="hostel-location">
+                                <i class="fas fa-map-marker-alt"></i> Colaba
+                            </div>
+                            <p>Clean hostel in an excellent location near major attractions.</p>
+                            <a href="#" class="btn">Book Now</a>
+                        </div>
+                    </div>
+                    
+                    <div class="hostel-card">
+                        <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Horn Ok Please Hostel">
+                        <div class="hostel-content">
+                            <h3>Horn Ok Please Hostel</h3>
+                            <div class="hostel-meta">
+                                <div class="hostel-rating">⭐ 4.3/5</div>
+                                <div class="hostel-price">₹750/night</div>
+                            </div>
+                            <div class="hostel-location">
+                                <i class="fas fa-map-marker-alt"></i> Bandra West
+                            </div>
+                            <p>Cozy hostel with friendly staff and great common areas.</p>
+                            <a href="#" class="btn">Book Now</a>
+                        </div>
+                    </div>
+                    
+                    <div class="hostel-card">
+                        <img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Namastey Mumbai Backpackers">
+                        <div class="hostel-content">
+                            <h3>Namastey Mumbai Backpackers</h3>
+                            <div class="hostel-meta">
+                                <div class="hostel-rating">⭐ 4.1/5</div>
+                                <div class="hostel-price">₹700/night</div>
+                            </div>
+                            <div class="hostel-location">
+                                <i class="fas fa-map-marker-alt"></i> Fort
+                            </div>
+                            <p>Budget-friendly option with convenient central location.</p>
+                            <a href="#" class="btn">Book Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="social-icons">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>

@@ -1,0 +1,6 @@
+module.exports = {
+  flightAPI: {
+    url: 'https://api.aviationstack.com/v1/',
+    key: '4dc7728a234e5314f52ef33d89fe529f'
+  }
+};

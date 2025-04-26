@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dubai Flight Info</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #dcefff, #a7c7e7);
+      color: #333;
+      line-height: 1.6;
+    }
+    header {
+      background: #1e3c72;
+      color: white;
+      padding: 3rem 1rem;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      animation: fadeInDown 1s ease-out;
+    }
+    header h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    header p {
+      font-size: 1.2rem;
+    }
+    section {
+      max-width: 1100px;
+      margin: 3rem auto;
+      padding: 2.5rem;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      opacity: 0;
+      transform: translateY(50px);
+      transition: all 0.6s ease-out;
+    }
+    section.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    h2 {
+      color: #0077b6;
+      margin-bottom: 1.2rem;
+      font-size: 2rem;
+    }
+    ul {
+      padding-left: 1.5rem;
+      list-style: none;
+      margin-bottom: 2rem;
+    }
+    li {
+      font-size: 1.1rem;
+      margin-bottom: 0.8rem;
+    }
+    ul li span {
+      font-weight: bold;
+    }
+    footer {
+      background: #1e3c72;
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 1rem;
+    }
+    footer a {
+      color: #ffd166;
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 2.5rem;
+      }
+      section {
+        padding: 2rem;
+      }
+      footer {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Dubai Airport Flight Insights</h1>
+    <p>All about departures, delays, and fare ranges from DXB</p>
+  </header>
+
+  <section>
+    <h2>📊 Daily Flight Stats</h2>
+    <ul>
+      <li><span>Average Flights Per Day:</span> 1,100+</li>
+      <li><span>Monthly Departures:</span> 16,500+</li>
+      <li><span>Monthly Arrivals:</span> 16,700+</li>
+      <li><span>Total Flights (30 days):</span> Over 33,000</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>🌐 Popular Destinations</h2>
+    <ul>
+      <li><span>Middle East:</span> Riyadh, Doha, Jeddah, Muscat</li>
+      <li><span>Asia:</span> Mumbai, Delhi, Karachi, Manila, Bangkok</li>
+      <li><span>Europe & USA:</span> London, Frankfurt, Paris, New York, Los Angeles</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>⏱️ On-Time Performance (OTP)</h2>
+    <ul>
+      <li><span>Emirates:</span> 82% on-time</li>
+      <li><span>flydubai:</span> 76% on-time</li>
+      <li><span>Qatar Airways:</span> 84% on-time</li>
+      <li><span>Saudi:</span> 68% on-time</li>
+      <li><span>Pakistan Intl:</span> <span style="color: #ff6b6b; font-weight: bold;">42% on-time</span> (frequent delays)</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>💰 Flight Pricing (Estimated)</h2>
+    <ul>
+      <li><span>Regional:</span> AED 300 - AED 1,200</li>
+      <li><span>Europe & USA:</span> AED 1,800 - AED 4,500+</li>
+      <li>Prices vary based on time of booking, airline, and class.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>⚠️ Flight Delays</h2>
+    <ul>
+      <li><span>18%</span> of flights delayed over 15 minutes in the last month</li>
+      <li><span>Average Delay Duration:</span> 22 minutes</li>
+      <li>Main reasons: weather, airspace congestion, technical issues</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Dubai Flight Insights | <a href="https://www.dubaiairports.ae/">Visit Dubai Airport Official</a></p>
+  </footer>
+
+  <script>
+    const sections = document.querySelectorAll('section');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('show');
+        }
+      });
+    }, {
+      threshold: 0.1
+    });
+
+    sections.forEach(section => {
+      observer.observe(section);
+    });
+  </script>
+</body>
+</html>

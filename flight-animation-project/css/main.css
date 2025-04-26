@@ -1,0 +1,73 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8fafc;
+    color: #1e293b;
+    margin: 0;
+    padding: 0;
+}
+
+.hero {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 80px 0;
+}
+
+.search-panel {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    margin-top: -50px;
+    padding: 30px;
+}
+
+.route-card {
+    border-left: 4px solid var(--primary-color);
+    transition: transform 0.3s;
+}
+
+.route-card:hover {
+    transform: translateY(-5px);
+}
+
+.feature-icon {
+    background-color: var(--light-color);
+    color: var(--primary-color);
+    padding: 15px;
+    border-radius: 50%;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.map-container {
+    height: 400px;
+    background-color: #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* Animation styles */
+#loading-animation {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 100px;
+    height: 100px;
+    z-index: 9999;
+    display: none; /* Hidden by default */
+}
+
+@keyframes fly {
+    0% {
+        transform: translateY(0) translateX(0);
+    }
+    50% {
+        transform: translateY(-50px) translateX(50px);
+    }
+    100% {
+        transform: translateY(0) translateX(100vw);
+    }
+}
+
+.plane {
+    animation: fly 2s linear infinite;
+}

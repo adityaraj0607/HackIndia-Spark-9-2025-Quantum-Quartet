@@ -1,0 +1,2246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyScanner Pro | National Hackathon Project</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.11.4/dist/gsap.min.js"></script>
+<!-- Add this in the <head> section, after your existing scripts -->
+    <script src="https://cdn.botpress.cloud/webchat/v2.3/inject.js"></script>
+    <style>
+        /* CSS styles remain unchanged */
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: var(--light);
+            overflow-x: hidden;
+        }
+        
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .loader-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .plane-loader {
+            width: 80px;
+            height: 80px;
+            background: var(--accent);
+            clip-path: polygon(50% 0%, 90% 50%, 50% 100%, 10% 50%);
+            animation: fly 2s infinite;
+        }
+        
+        @keyframes fly {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        
+        .progress-bar {
+            width: 200px;
+            height: 6px;
+            background: #444;
+            border-radius: 3px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            transition: width 0.5s;
+        }
+        
+        header {
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--light);
+            text-transform: uppercase;
+            background: linear-gradient(to right, var(--accent), var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: transform 0.3s;
+        }
+        
+        .logo:hover {
+            transform: scale(1.05);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 30px;
+        }
+        
+        nav ul li a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: color 0.3s;
+            position: relative;
+        }
+        
+        nav ul li a:hover {
+            color: var(--accent);
+        }
+        
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--accent);
+            transition: width 0.3s;
+        }
+        
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+        
+        .hero {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            padding: 0 5%;
+        }
+        
+        .globe-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.6;
+        }
+        
+        .hero-content {
+            width: 60%;
+            z-index: 2;
+            animation: fadeIn 1s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            line-height: 1.2;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            max-width: 600px;
+        }
+        
+        .search-form {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transform: perspective(1000px) rotateX(5deg);
+            transition: transform 0.3s;
+        }
+        
+        .search-form:hover {
+            transform: perspective(1000px) rotateX(0deg);
+        }
+        
+        .form-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-control {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.9);
+            font-size: 1rem;
+            transition: box-shadow 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px var(--accent);
+        }
+        
+        .btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 8px;
+            background: var(--accent);
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .features {
+            padding: 80px 5%;
+            background: rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+            font-size: 2.5rem;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 4px;
+            background: var(--accent);
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .feature-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+        
+        .feature-card h3 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .flights-section {
+            padding: 80px 5%;
+        }
+        
+        .flight-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+        
+        .flight-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(5px);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .flight-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .flight-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.2);
+        }
+        
+        .flight-route {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .flight-icon {
+            color: var(--success);
+            transform: rotate(45deg);
+        }
+        
+        .flight-details {
+            padding: 20px;
+            flex-grow: 1;
+        }
+        
+        .flight-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .flight-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        .flight-cta {
+            padding: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+        
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .floating-element {
+            position: absolute;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+        
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(100px, 100px) rotate(360deg); }
+        }
+        
+        footer {
+            padding: 40px 5%;
+            background: rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-column {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .footer-column h3 {
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            width: 50%;
+            height: 2px;
+            background: var(--accent);
+            bottom: -8px;
+            left: 0;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-column ul li a {
+            color: var(--light);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-column ul li a:hover {
+            color: var(--accent);
+        }
+        
+        .copyright {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .hero-content {
+                width: 100%;
+            }
+            
+            header {
+                padding: 20px;
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            nav ul li {
+                margin: 0 10px 10px;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .search-form {
+                padding: 20px;
+            }
+        }
+        /* API-related styles */
+.input-wrapper {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+}
+
+.suggestions-container {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    background: white;
+    border-radius: 8px;
+    z-index: 100;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    display: none;
+}
+
+.suggestion-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    color: var(--dark);
+    transition: background 0.2s;
+}
+
+.suggestion-item:hover {
+    background: rgba(0,0,0,0.05);
+}
+
+.airport-code {
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+.airport-name {
+    font-size: 0.9em;
+}
+
+.airport-city {
+    font-size: 0.8em;
+    color: #666;
+}
+
+.spinner {
+    display: none;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+    margin-left: 10px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Results section */
+.results-section {
+    padding: 40px 5%;
+    display: none;
+}
+
+.result-card {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    animation: fadeIn 0.5s ease-out;
+}
+
+.flight-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.airline-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+.route-visualization {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 20px 0;
+    position: relative;
+}
+
+.airport {
+    text-align: center;
+    flex: 0 0 auto;
+    width: 80px;
+}
+
+.airport-code {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.airport-time {
+    font-size: 1rem;
+    margin-top: 5px;
+    color: rgba(255,255,255,0.8);
+}
+
+.flight-path {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.2);
+    margin: 0 15px;
+    position: relative;
+}
+
+.flight-path::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    transform: translateY(-50%);
+}
+
+.flight-icon-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 30px;
+    height: 30px;
+    background: var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* Destinations Section Styles */
+.destinations-section {
+    padding: 80px 5%;
+    background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.1) 100%);
+}
+
+.section-subtitle {
+    text-align: center;
+    color: var(--light);
+    font-size: 1.1rem;
+    margin-top: -30px;
+    margin-bottom: 50px;
+    opacity: 0.8;
+}
+
+.destinations-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.destination-card {
+    position: relative;
+    height: 350px;
+    border-radius: 15px;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.5s;
+    cursor: pointer;
+}
+
+.destination-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.destination-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.1) 100%);
+}
+
+.destination-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 25px;
+    color: var(--light);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
+
+.destination-location {
+    margin-top: auto;
+}
+
+.destination-country {
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    opacity: 0.8;
+    display: block;
+    margin-bottom: 5px;
+    color: var(--accent);
+}
+
+.destination-city {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 5px 0;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.destination-info {
+    margin-top: 15px;
+}
+
+.destination-message {
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    opacity: 0.9;
+}
+
+.destination-price {
+    font-size: 1rem;
+    margin-top: 10px;
+}
+
+.destination-price span {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+/* Responsive styles */
+@media (max-width: 1024px) {
+    .destinations-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .destinations-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .destination-card {
+        height: 300px;
+    }
+}
+/* For Travel Pros Section */
+.travel-pros-section {
+    padding: 80px 5%;
+    background: linear-gradient(135deg, rgba(36, 36, 62, 0.8), rgba(48, 43, 99, 0.6));
+    position: relative;
+    overflow: hidden;
+    margin-top: 30px;
+}
+
+.carousel-container {
+    position: relative;
+    margin-top: 50px;
+    overflow: hidden;
+    padding-bottom: 60px; /* Space for navigation */
+}
+
+.carousel-track {
+    display: flex;
+    gap: 30px;
+    transition: transform 0.5s ease;
+    padding: 10px 0 30px 0; /* Extra padding for shadow on hover */
+}
+
+.pro-card {
+    flex: 0 0 calc(25% - 22.5px); /* 4 cards per row with gap */
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeIn 0.8s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.pro-card:nth-child(1) { animation-delay: 0.1s; }
+.pro-card:nth-child(2) { animation-delay: 0.2s; }
+.pro-card:nth-child(3) { animation-delay: 0.3s; }
+.pro-card:nth-child(4) { animation-delay: 0.4s; }
+.pro-card:nth-child(5) { animation-delay: 0.5s; }
+.pro-card:nth-child(6) { animation-delay: 0.6s; }
+
+.pro-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.card-icon {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    font-size: 2.5rem;
+    color: var(--accent);
+    transition: all 0.3s ease;
+}
+
+.pro-card:hover .card-icon {
+    background: var(--accent);
+    color: white;
+    transform: scale(1.1);
+}
+
+.card-title {
+    color: var(--light);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.card-description {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    flex-grow: 1;
+}
+
+.carousel-nav {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    display: flex;
+    gap: 15px;
+}
+
+.carousel-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.carousel-btn:hover {
+    background: var(--accent);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.carousel-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Responsive styles */
+@media (max-width: 1200px) {
+    .pro-card {
+        flex: 0 0 calc(33.33% - 20px); /* 3 cards per row */
+    }
+}
+
+@media (max-width: 992px) {
+    .pro-card {
+        flex: 0 0 calc(50% - 15px); /* 2 cards per row */
+    }
+}
+
+@media (max-width: 768px) {
+    .pro-card {
+        flex: 0 0 calc(100% - 0px); /* 1 card per row */
+    }
+    
+    .carousel-nav {
+        bottom: 0;
+        left: 0;
+        right: 0;
+        justify-content: center;
+    }
+}
+.card-icon {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 20px;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.4s ease;
+}
+
+.pro-card:hover .card-icon {
+    transform: scale(1.1);
+    border-color: var(--accent);
+}
+
+.pro-card:hover .card-image {
+    transform: scale(1.15);
+}
+/* Button styling for pro cards */
+.pro-btn {
+    width: 100%;
+    margin-top: 15px;
+    padding: 12px 0;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+}
+
+.pro-card:hover .pro-btn {
+    background: var(--secondary);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+/* Sidebar Menu Styles */
+.menu-toggle {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    background: none;
+    border: none;
+    color: var(--light);
+    font-size: 1.5rem;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.menu-toggle:hover {
+    background-color: var(--accent);
+}
+
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1010;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    backdrop-filter: blur(3px);
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -320px;
+    width: 320px;
+    height: 100%;
+    background: linear-gradient(135deg, #302b63, #24243e);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    z-index: 1020;
+    transition: left 0.3s ease-in-out;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--light);
+    text-transform: uppercase;
+    background: linear-gradient(to right, var(--accent), var(--success));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.sidebar-close {
+    background: none;
+    border: none;
+    color: var(--light);
+    font-size: 1.2rem;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.3s;
+}
+
+.sidebar-close:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.sidebar-section {
+    padding: 15px 0;
+}
+
+.sidebar-heading {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 0 20px;
+    margin-bottom: 10px;
+}
+
+.sidebar-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: var(--light);
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.sidebar-link:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-link i {
+    width: 24px;
+    margin-right: 15px;
+    text-align: center;
+    color: var(--accent);
+}
+
+.sidebar-divider {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.1);
+    margin: 5px 0;
+}
+
+/* Active States */
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.sidebar.active {
+    left: 0;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 576px) {
+    .sidebar {
+        width: 280px;
+        left: -280px;
+    }
+    
+    .menu-toggle {
+        top: 15px;
+        left: 15px;
+    }
+}
+/* Logout Message Styles */
+.logout-message {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.logout-message.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.logout-content {
+    background: linear-gradient(135deg, #302b63, #24243e);
+    padding: 30px 50px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transform: translateY(20px);
+    transition: transform 0.3s;
+}
+
+.logout-message.show .logout-content {
+    transform: translateY(0);
+}
+
+.logout-content i {
+    font-size: 3rem;
+    color: var(--success);
+    margin-bottom: 15px;
+}
+
+.logout-content p {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.redirect-text {
+    font-size: 0.9rem !important;
+    opacity: 0.7;
+}
+
+/* Adjusted header for sidebar compatibility */
+header {
+    padding-left: 80px;
+}
+
+@media (max-width: 768px) {
+    header {
+        padding-left: 50px;
+    }
+}
+/* Add to your existing style section */
+.input-container {
+    position: relative;
+}
+
+.autocomplete-results {
+    position: absolute;
+    width: 100%;
+    max-height: 300px;
+    overflow-y: auto;
+    background: white;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    display: none;
+    top: 100%;
+    left: 0;
+}
+
+.autocomplete-item {
+    display: flex;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
+}
+
+.autocomplete-item:hover {
+    background-color: #f8f9fa;
+}
+
+.airport-code {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: var(--primary);
+    margin-right: 15px;
+    flex-shrink: 0;
+    width: 50px;
+    display: flex;
+    align-items: center;
+}
+
+.airport-details {
+    flex: 1;
+}
+
+.airport-name {
+    font-weight: 500;
+    color: var(--dark);
+}
+
+.airport-location {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 3px;
+}
+
+.no-results {
+    padding: 15px;
+    text-align: center;
+    color: #666;
+}
+
+    </style>
+</head>
+<body>
+    <!-- Loader -->
+    <div class="loader">
+        <div class="loader-content">
+            <div class="plane-loader"></div>
+            <div class="progress-bar">
+                <div class="progress"></div>
+            </div>
+        </div>
+    </div>
+ 
+    <!-- Header -->
+    <header>
+        <div class="logo">SkyScanner</div>
+        <nav>
+            <ul>
+                <li><a href="#" class="nav-link">Home</a></li>   <!-- Add for the home tab when someone click on that it goes to the home page in the page menu  -->
+                <li><a href="flights/flights.html" class="nav-link">Flights</a></li> <!-- Add for the flight reviews and other deatils about the flight in the flight tab  -->
+                <li><a href="#" class="nav-link">Destinations</a></li>  <!--add here if a user is inputting the data for the location as he/she wants-->
+                <li><a href="#" class="nav-link">Offers</a></li>
+                <li><a href="index.html/index.html" class="nav-link">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="globe-container" id="globe"></div>
+        <div class="hero-content">
+            <h1>Discover Your Next Trips </h1>
+            <p>Find the best flights at the best prices. Compare thousands of options across hundreds of airlines and travel agencies.</p>
+            
+            <div class="search-form">
+                <div class="form-group">
+                    <div class="input-wrapper">
+                        <input type="text" id="from-input" class="form-control" placeholder="From" autocomplete="off">
+                        <div id="from-suggestions" class="suggestions-container"></div>
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="text" id="to-input" class="form-control" placeholder="To" autocomplete="off">
+                        <div id="to-suggestions" class="suggestions-container"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input type="date" id="departure-date" class="form-control" placeholder="Departure">
+                    <input type="date" id="return-date" class="form-control" placeholder="Return">
+                    <input type="number" id="passengers" class="form-control" placeholder="Passengers" min="1" value="1">
+                </div>
+                <button id="search-btn" class="btn">
+                    <i class="fas fa-search"></i> Search Flights
+                    <span class="spinner" id="search-spinner"></span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="floating-elements">
+            <div class="floating-element" style="width: 100px; height: 100px; top: 10%; left: 10%;"></div>
+            <div class="floating-element" style="width: 150px; height: 150px; top: 50%; left: 80%;"></div>
+            <div class="floating-element" style="width: 80px; height: 80px; top: 70%; left: 30%;"></div>
+        </div>
+        
+        <h2 class="section-title">Why Choose Us</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <i class="fas fa-globe feature-icon"></i>
+                <h3>Global Coverage</h3>
+                <p>Access to thousands of routes worldwide with comprehensive options for all your travel needs. Authentic results from our websites</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-bolt feature-icon"></i>
+                <h3>Fast Results</h3>
+                <p>Our powerful algorithm delivers the best flight combinations in seconds.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-coins feature-icon"></i>
+                <h3>Best Prices</h3>
+                <p>We compare prices across hundreds of sites to ensure you get the best deals.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-shield-alt feature-icon"></i>
+                <h3>Secure Booking</h3>
+                <p>Your payment and personal information are always protected with our secure systems.</p>
+            </div>
+        </div>
+    </section>
+<!-- Hamburger Menu Button -->
+<button id="menu-toggle" class="menu-toggle">
+    <i class="fas fa-bars"></i>
+</button>
+
+<!-- Sidebar Overlay -->
+<div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+<!-- Sidebar Menu -->
+<div id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">SkyScanner</div>
+        <button id="sidebar-close" class="sidebar-close">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <div class="sidebar-content">
+        <!-- Main Navigation -->
+        <div class="sidebar-section">
+            <ul class="sidebar-nav">
+                <li>
+                    <a href="#" class="sidebar-link">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-link">
+                        <i class="fas fa-plane"></i>
+                        <span>Flights</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-link">
+                        <i class="fas fa-hotel"></i>
+                        <span>Stays</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-link">
+                        <i class="fas fa-car"></i>
+                        <span>Train Routes</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-link">
+                        <i class="fas fa-suitcase"></i>
+                        <span>Flight+Hotel</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="sidebar-divider"></div>
+        
+        <!-- Explore Section -->
+        <div class="sidebar-section">
+            <h3 class="sidebar-heading">Explore</h3>
+            <ul class="sidebar-nav">
+                <li>
+                    <a href="#" class="sidebar-link">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Destinations</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-link">
+                        <i class="fas fa-percent"></i>
+                        <span>Deals</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-link">
+                        <i class="fas fa-route"></i>
+                        <span>Travel Guides</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="sidebar-divider"></div>
+        
+        <!-- Account Section -->
+        <div class="sidebar-section">
+            <h3 class="sidebar-heading">Account</h3>
+            <ul class="sidebar-nav">
+                <li>
+                    <a href="../profile.html" class="sidebar-link">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Profile</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-link">
+                        <i class="fas fa-bell"></i>
+                        <span>Notifications</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="../setting.html" class="sidebar-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-link">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Log Out</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+    <!-- Add this section before the footer -->
+<section class="destinations-section">
+    <h2 class="section-title">Featured Destinations</h2>
+    <p class="section-subtitle">Explore our handpicked destinations with exclusive offers</p>
+    
+    <div class="destinations-grid">
+        <!-- Destination 1 -->
+        <div class="destination-card" style="background-image: url('https://media.istockphoto.com/id/1979531379/photo/unesco-heritage-building-of-chatrapati-shivaji-maharaj-terminus-railway-station-specially.jpg?s=2048x2048&w=is&k=20&c=9rQE71zr0Z63EvOX2gIhPGCne5fQO02sHjszDfWgDbo=')">
+            <div class="destination-overlay"></div>
+            <div class="destination-content">
+                <div class="destination-location">
+                    <span class="destination-country">India</span>
+                    <h3 class="destination-city">Mumbai</h3>
+                </div>
+                <div class="destination-info">
+                    <p class="destination-message">Book Economy Class Return until 07 May 25</p>
+                    <p class="destination-price">from <span>₹28,408</span></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Destination 2 -->
+        <div class="destination-card" style="background-image: url('https://images.unsplash.com/photo-1543832923-44667a44c804?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80')">
+            <div class="destination-overlay"></div>
+            <div class="destination-content">
+                <div class="destination-location">
+                    <span class="destination-country">United Arab Emirates</span>
+                    <h3 class="destination-city">Dubai</h3>
+                </div>
+                <div class="destination-info">
+                    <p class="destination-message">Book Economy Class Return until 15 Jun 25</p>
+                    <p class="destination-price">from <span>₹32,550</span></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Destination 3 -->
+        <div class="destination-card" style="background-image: url('https://images.unsplash.com/photo-1518391846015-55a9cc003b25?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80')">
+            <div class="destination-overlay"></div>
+            <div class="destination-content">
+                <div class="destination-location">
+                    <span class="destination-country">United Kingdom</span>
+                    <h3 class="destination-city">London</h3>
+                </div>
+                <div class="destination-info">
+                    <p class="destination-message">Book Economy Class Return until 12 Apr 25</p>
+                    <p class="destination-price">from <span>₹58,900</span></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Destination 4 -->
+        <div class="destination-card" style="background-image: url('https://images.unsplash.com/photo-1535139262971-c51845709a48?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80')">
+            <div class="destination-overlay"></div>
+            <div class="destination-content">
+                <div class="destination-location">
+                    <span class="destination-country">France</span>
+                    <h3 class="destination-city">Paris</h3>
+                </div>
+                <div class="destination-info">
+                    <p class="destination-message">Book Economy Class Return until 20 May 25</p>
+                    <p class="destination-price">from <span>₹48,750</span></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Destination 5 -->
+        <div class="destination-card" style="background-image: url('https://images.unsplash.com/photo-1549693578-d683be217e58?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80')">
+            <div class="destination-overlay"></div>
+            <div class="destination-content">
+                <div class="destination-location">
+                    <span class="destination-country">United States</span>
+                    <h3 class="destination-city">New York</h3>
+                </div>
+                <div class="destination-info">
+                    <p class="destination-message">Book Economy Class Return until 30 Jun 25</p>
+                    <p class="destination-price">from <span>₹72,990</span></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Destination 6 -->
+        <div class="destination-card" style="background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80')">
+            <div class="destination-overlay"></div>
+            <div class="destination-content">
+                <div class="destination-location">
+                    <span class="destination-country">Singapore</span>
+                    <h3 class="destination-city">Singapore</h3>
+                </div>
+                <div class="destination-info">
+                    <p class="destination-message">Book Economy Class Return until 15 May 25</p>
+                    <p class="destination-price">from <span>₹35,200</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Add this section before the footer -->
+<section class="travel-pros-section">
+    <h2 class="section-title">For Travel Pros</h2>
+    <p class="section-subtitle">Advanced tools for seasoned travelers</p>
+    
+    <div class="carousel-container">
+        <div class="carousel-track">
+            <!-- Card 1: Explore -->
+            <div class="pro-card">
+                <div class="card-icon">
+                    <i class="fas fa-globe-americas"></i>
+                </div>
+                <h3 class="card-title">Explore</h3>
+                <p class="card-description">Discover new destinations with personalized recommendations based on your travel history.</p>
+            </div>
+            
+            <!-- Card 2: Trips -->
+            <div class="pro-card">
+                <div class="card-icon">
+                    <i class="fas fa-route"></i>
+                </div>
+                <h3 class="card-title">Trips</h3>
+                <p class="card-description">Organize all your bookings in one place. Access itineraries even offline during your journey.</p>
+            </div>
+            
+            <!-- Card 3: Price Alerts -->
+            <div class="pro-card">
+                <div class="card-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <h3 class="card-title">Price Alerts</h3>
+                <p class="card-description">Get notified when prices drop for your watched routes. Never miss out on the best deal again.</p>
+            </div>
+            
+            <!-- Card 4: Flight Tracker -->
+            <div class="pro-card">
+                <div class="card-icon">
+                    <i class="fas fa-plane-departure"></i>
+                </div>
+                <h3 class="card-title">Flight Tracker</h3>
+                <p class="card-description">Track any flight in real-time with accurate updates on delays, gate changes, and flight status.</p>
+            </div>
+            
+            <!-- Card 5: SkyScanner.ai -->
+            <div class="pro-card">
+                <div class="card-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3 class="card-title">SkyScanner.ai</h3>
+                <p class="card-description">Our AI travel assistant helps you find the perfect flight and answers all your travel questions.</p>
+            </div>
+            
+            <!-- Card 6: Best Time to Travel -->
+            <div class="pro-card">
+                <div class="card-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3 class="card-title">Best Time to Travel</h3>
+                <p class="card-description">Analyze price trends and find the optimal time to book your next adventure at the lowest rates.</p>
+            </div>
+        </div>
+        
+        <div class="carousel-nav">
+            <button class="carousel-btn prev" aria-label="Previous slide">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="carousel-btn next" aria-label="Next slide">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+</section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>SkyScanner Pro</h3>
+                <p>Find your perfect flight at the perfect price with our advanced flight search technology.</p>
+            </div>
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Search Flights</a></li>
+                    <li><a href="#">Destinations</a></li>
+                    <li><a href="#">Offers</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Resources</h3>
+                <ul>
+                    <li><a href="#">Flight Status</a></li>
+                    <li><a href="#">Travel Guides</a></li>
+                    <li><a href="#">FAQs</a></li>
+                    <li><a href="#">Support</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Contact Us</h3>
+                <ul>
+                    <li><a href="#">support@skyscannerpro.com</a></li>
+                    <li><a href="#">+91 9939725319</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>© 2025 SkyScanner Pro. All rights reserved. Created by Quantum Quartet, India.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Loader animation
+        document.addEventListener('DOMContentLoaded', () => {
+            const progress = document.querySelector('.progress');
+            const loader = document.querySelector('.loader');
+            
+            let width = 0;
+            const interval = setInterval(() => {
+                width += 5;
+                progress.style.width = width + '%';
+                
+                if (width >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        loader.style.opacity = 0;
+                        setTimeout(() => {
+                            loader.style.display = 'none';
+                        }, 500);
+                    }, 500);
+                }
+            }, 100);
+        });
+
+        // Enhanced 3D Globe with Moving Flights
+        function initGlobe() {
+            const container = document.getElementById('globe');
+            
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+            
+            // Create globe geometry
+            const geometry = new THREE.SphereGeometry(5, 64, 64);
+            
+            // Load Earth texture
+            const textureLoader = new THREE.TextureLoader();
+            const texture = textureLoader.load('https://threejs.org/examples/textures/land_ocean_ice_cloud_2048.jpg');
+            
+            const material = new THREE.MeshBasicMaterial({
+                map: texture,
+                transparent: true,
+                opacity: 0.8
+            });
+            
+            const globe = new THREE.Mesh(geometry, material);
+            scene.add(globe);
+            
+            camera.position.z = 10;
+            
+            // Flight path creator function with curve
+            function createFlightPath(startLat, startLng, endLat, endLng, color = 0x4cc9f0) {
+                const points = [];
+                const segments = 60;
+                
+                for (let i = 0; i <= segments; i++) {
+                    const t = i / segments;
+                    
+                    const lat = startLat + t * (endLat - startLat);
+                    const lng = startLng + t * (endLng - startLng);
+                    
+                    // Convert lat/lng to 3D position
+                    const phi = (90 - lat) * Math.PI / 180;
+                    const theta = (lng + 180) * Math.PI / 180;
+                    
+                    // Add arc height
+                    const radius = 5 + Math.sin(t * Math.PI) * 0.5;
+                    
+                    const x = -radius * Math.sin(phi) * Math.cos(theta);
+                    const y = radius * Math.cos(phi);
+                    const z = radius * Math.sin(phi) * Math.sin(theta);
+                    
+                    points.push(new THREE.Vector3(x, y, z));
+                }
+                
+                const curve = new THREE.CatmullRomCurve3(points);
+                const pathGeometry = new THREE.TubeGeometry(curve, 64, 0.02, 8, false);
+                const pathMaterial = new THREE.MeshBasicMaterial({ 
+                    color,
+                    transparent: true,
+                    opacity: 0.6
+                });
+                
+                const path = new THREE.Mesh(pathGeometry, pathMaterial);
+                
+                // Create flight marker (plane)
+                const markerGeometry = new THREE.ConeGeometry(0.08, 0.25, 4);
+                markerGeometry.rotateX(Math.PI / 2);
+                const markerMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+                const marker = new THREE.Mesh(markerGeometry, markerMaterial);
+                
+                scene.add(marker);
+                
+                return {
+                    path: path,
+                    curve: curve,
+                    marker: marker,
+                    progress: { value: 0 },
+                    speed: 0.2 + Math.random() * 0.3 // Random speed for variety
+                };
+            }
+            
+            // Flight routes data
+            const flightRoutes = [
+                { start: [28.6139, 77.2090], end: [19.0760, 72.8777], color: 0xf72585 }, // Delhi to Mumbai
+                { start: [12.9716, 77.5946], end: [22.5726, 88.3639], color: 0x4361ee }, // Bangalore to Kolkata
+                { start: [28.6139, 77.2090], end: [25.2048, 55.2708], color: 0x4cc9f0 }, // Delhi to Dubai
+                { start: [19.0760, 72.8777], end: [13.0827, 80.2707], color: 0x3a0ca3 }, // Mumbai to Chennai
+                { start: [40.7128, -74.0060], end: [51.5074, -0.1278], color: 0x7209b7 }, // New York to London
+                { start: [35.6762, 139.6503], end: [22.3193, 114.1694], color: 0xff9e00 }, // Tokyo to Hong Kong
+                { start: [1.3521, 103.8198], end: [-33.8688, 151.2093], color: 0x06d6a0 }  // Singapore to Sydney
+            ];
+            
+            // Create flight objects
+            const flights = flightRoutes.map(route => {
+                return createFlightPath(
+                    route.start[0], route.start[1], 
+                    route.end[0], route.end[1], 
+                    route.color
+                );
+            });
+            
+            // Add flight paths to scene
+            flights.forEach(flight => scene.add(flight.path));
+            
+            // Animation
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                globe.rotation.y += 0.001;
+                
+                // Update flight markers
+                flights.forEach(flight => {
+                    // Update progress
+                    flight.progress.value += flight.speed / 1000;
+                    if (flight.progress.value > 1) flight.progress.value = 0;
+                    
+                    // Get position on curve
+                    const position = flight.curve.getPointAt(flight.progress.value);
+                    flight.marker.position.copy(position);
+                    
+                    // Orient marker tangent to curve
+                    if (flight.progress.value < 0.99) {
+                        const lookAtPoint = flight.curve.getPointAt(
+                            Math.min(flight.progress.value + 0.01, 1)
+                        );
+                        flight.marker.lookAt(lookAtPoint);
+                    }
+                });
+                
+                renderer.render(scene, camera);
+            }
+            
+            animate();
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+        
+        // Initialize 3D globe after window loads
+        window.addEventListener('load', initGlobe);
+        
+        // Animate elements on scroll
+        function animateOnScroll() {
+            const elements = document.querySelectorAll('.feature-card, .flight-card');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            elements.forEach(el => {
+                el.style.opacity = 0;
+                el.style.transform = 'translateY(50px)';
+                el.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+                observer.observe(el);
+            });
+        }
+        
+        window.addEventListener('load', animateOnScroll);
+        <!--for the lower button-->
+        // Carousel functionality for Travel Pros section
+document.addEventListener('DOMContentLoaded', function() {
+    const initTravelProCarousel = () => {
+        const track = document.querySelector('.carousel-track');
+        if (!track) return;
+        
+        const cards = track.querySelectorAll('.pro-card');
+        const prevBtn = document.querySelector('.carousel-btn.prev');
+        const nextBtn = document.querySelector('.carousel-btn.next');
+        
+        let currentIndex = 0;
+        
+        // Calculate how many cards can be shown at once based on screen width
+        function getCardsPerView() {
+            if (window.innerWidth > 1200) return 4;
+            if (window.innerWidth > 992) return 3;
+            if (window.innerWidth > 768) return 2;
+            return 1;
+        }
+        
+        // Update the carousel
+        function updateCarousel() {
+            const cardsPerView = getCardsPerView();
+            const cardWidth = track.offsetWidth / cardsPerView;
+            const maxIndex = Math.max(0, cards.length - cardsPerView);
+            
+            // Ensure current index is valid
+            if (currentIndex > maxIndex) currentIndex = maxIndex;
+            
+            // Move the track
+            track.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
+            
+            // Update button states
+            prevBtn.disabled = currentIndex <= 0;
+            nextBtn.disabled = currentIndex >= maxIndex;
+        }
+        
+        // Button event listeners
+        prevBtn.addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCarousel();
+            }
+        });
+        
+        nextBtn.addEventListener('click', () => {
+            const cardsPerView = getCardsPerView();
+            const maxIndex = Math.max(0, cards.length - cardsPerView);
+            
+            if (currentIndex < maxIndex) {
+                currentIndex++;
+                updateCarousel();
+            }
+        });
+        
+        // Initialize on load and resize
+        updateCarousel();
+        window.addEventListener('resize', updateCarousel);
+        
+        // Intersection Observer for fade-in animation
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // Add initial visible state class or trigger animation
+                    entry.target.style.opacity = 1;
+                    entry.target.style.transform = 'translateY(0)';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        // Observe all cards
+        cards.forEach(card => {
+            observer.observe(card);
+        });
+    };
+    
+    // Initialize the carousel after a short delay to ensure elements are rendered
+    setTimeout(initTravelProCarousel, 100);
+});
+    </script>
+</footer>
+
+<!-- Replace your current <script> block that contains API Configuration with this one -->
+    <script>
+        // Single source of truth for API configuration
+        const API_BASE_URL = 'http://localhost:5000/api';
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Flight search initialized');
+            
+            // Get DOM elements
+            const fromInput = document.getElementById('from-input');
+            const toInput = document.getElementById('to-input');
+            const fromSuggestions = document.getElementById('from-suggestions');
+            const toSuggestions = document.getElementById('to-suggestions');
+            const departureDate = document.getElementById('departure-date');
+            const returnDate = document.getElementById('return-date');
+            const passengersInput = document.getElementById('passengers');
+            const searchBtn = document.getElementById('search-btn');
+            const searchSpinner = document.getElementById('search-spinner');
+            
+            // Check if elements exist
+            if (!fromInput || !toInput || !fromSuggestions || !toSuggestions) {
+                console.error('Critical search elements not found');
+                return;
+            }
+            
+            console.log('Search elements found');
+            
+            // Set min dates for date inputs
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            departureDate.min = today.toISOString().split('T')[0];
+            returnDate.min = tomorrow.toISOString().split('T')[0];
+            
+            departureDate.addEventListener('change', function() {
+                const departureDateVal = new Date(this.value);
+                const nextDay = new Date(departureDateVal);
+                nextDay.setDate(nextDay.getDate() + 1);
+                returnDate.min = nextDay.toISOString().split('T')[0];
+                
+                if (returnDate.value && new Date(returnDate.value) <= departureDateVal) {
+                    returnDate.value = nextDay.toISOString().split('T')[0];
+                }
+            });
+            
+            // Attach airport search functionality
+            fromInput.addEventListener('input', function() {
+                const query = this.value.trim();
+                if (query.length >= 1) {
+                    searchAirports(query, fromSuggestions, fromInput);
+                } else {
+                    fromSuggestions.style.display = 'none';
+                }
+            });
+            
+            toInput.addEventListener('input', function() {
+                const query = this.value.trim();
+                if (query.length >= 1) {
+                    searchAirports(query, toSuggestions, toInput);
+                } else {
+                    toSuggestions.style.display = 'none';
+                }
+            });
+            
+            // Search button handler
+            if (searchBtn) {
+                searchBtn.addEventListener('click', async function() {
+                    console.log('Search button clicked');
+                    
+                    // Validation
+                    if (!fromInput.dataset.iataCode) {
+                        alert('Please select a departure airport from the suggestions');
+                        return;
+                    }
+                    
+                    if (!toInput.dataset.iataCode) {
+                        alert('Please select a destination airport from the suggestions');
+                        return;
+                    }
+                    
+                    if (!departureDate.value) {
+                        alert('Please select a departure date');
+                        return;
+                    }
+                    
+                    // Show loading state
+                    if (searchSpinner) searchSpinner.style.display = 'inline-block';
+                    searchBtn.disabled = true;
+                    
+                    try {
+                        const searchData = {
+                            from: fromInput.dataset.iataCode,
+                            to: toInput.dataset.iataCode,
+                            date: departureDate.value,
+                            returnDate: returnDate.value || null,
+                            passengers: parseInt(passengersInput.value) || 1
+                        };
+                        
+                        console.log('Sending search request:', searchData);
+                        
+                        const response = await fetch(`${API_BASE_URL}/flights/search`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(searchData)
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error(`HTTP error: ${response.status}`);
+                        }
+                        
+                        const data = await response.json();
+                        console.log('Search results:', data);
+                        
+                        displayFlightResults(data);
+                    } catch (error) {
+                        console.error('Error during flight search:', error);
+                        displayError(error.message);
+                    } finally {
+                        if (searchSpinner) searchSpinner.style.display = 'none';
+                        searchBtn.disabled = false;
+                    }
+                });
+            }
+            
+            // Click outside to close suggestions
+            document.addEventListener('click', function(e) {
+                if (!fromInput.contains(e.target) && !fromSuggestions.contains(e.target)) {
+                    fromSuggestions.style.display = 'none';
+                }
+                
+                if (!toInput.contains(e.target) && !toSuggestions.contains(e.target)) {
+                    toSuggestions.style.display = 'none';
+                }
+            });
+        });
+        
+        // THIS IS THE KEY FIX - Properly implemented searchAirports function
+        async function searchAirports(query, suggestionsContainer, inputElement) {
+            try {
+                console.log(`Searching airports for: "${query}"`);
+                
+                // Show loading indicator
+                suggestionsContainer.innerHTML = '<div class="suggestion-item">Searching airports...</div>';
+                suggestionsContainer.style.display = 'block';
+                
+                // CRITICAL FIX: Using the correct endpoint with proper path
+                const endpoint = `${API_BASE_URL}/airports/search?query=${encodeURIComponent(query)}`;
+                console.log('Making request to:', endpoint);
+                
+                const response = await fetch(endpoint);
+                
+                if (!response.ok) {
+                    throw new Error(`Server responded with status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Airport search results:', data);
+                
+                // Display results
+                if (data.places && data.places.length > 0) {
+                    suggestionsContainer.innerHTML = '';
+                    
+                    data.places.forEach(place => {
+                        const item = document.createElement('div');
+                        item.className = 'suggestion-item';
+                        item.innerHTML = `
+                            <span class="airport-code">${place.iataCode}</span>
+                            <span class="airport-name">${place.name}</span>
+                            <div class="airport-city">${place.cityName}, ${place.countryName}</div>
+                        `;
+                        
+                        item.addEventListener('click', function() {
+                            console.log('Selected airport:', place);
+                            inputElement.value = `${place.cityName} (${place.iataCode})`;
+                            inputElement.dataset.iataCode = place.iataCode;
+                            suggestionsContainer.style.display = 'none';
+                        });
+                        
+                        suggestionsContainer.appendChild(item);
+                    });
+                } else {
+                    suggestionsContainer.innerHTML = '<div class="suggestion-item">No airports found</div>';
+                }
+            } catch (error) {
+                console.error('Error searching airports:', error);
+                suggestionsContainer.innerHTML = `<div class="suggestion-item">Error: ${error.message}</div>`;
+            }
+        }
+        
+        // Keep the existing displayFlightResults and displayError functions
+        function displayFlightResults(data) {
+            let resultsSection = document.querySelector('.results-section');
+            
+            if (!resultsSection) {
+                resultsSection = document.createElement('section');
+                resultsSection.className = 'results-section';
+                document.querySelector('.hero').after(resultsSection);
+            }
+            
+            if (data.flights && data.flights.length > 0) {
+                let flightsHTML = `
+                    <h2 class="section-title">Flight Results</h2>
+                    <div class="flight-results-container">
+                `;
+                
+                data.flights.forEach(flight => {
+                    flightsHTML += `
+                        <div class="result-card">
+                            <div class="flight-leg">
+                                <div class="leg-header">
+                                    <div class="airline">${flight.airline}</div>
+                                    <div class="leg-duration">${flight.duration}</div>
+                                </div>
+                                
+                                <div class="route-visualization">
+                                    <div class="airport">
+                                        <div class="airport-code">${flight.from}</div>
+                                        <div class="airport-time">${formatTime(new Date(flight.departure))}</div>
+                                    </div>
+                                    
+                                    <div class="flight-path">
+                                        <div class="flight-line"></div>
+                                        <div class="flight-icon">
+                                            <i class="fas fa-plane"></i>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="airport">
+                                        <div class="airport-code">${flight.to}</div>
+                                        <div class="airport-time">${formatTime(new Date(flight.arrival))}</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flight-details">
+                                    <div class="flight-number">Flight ${flight.id}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="flight-pricing">
+                                <div class="price-details">
+                                    <div class="price">₹${flight.price.toLocaleString('en-IN')}</div>
+                                    <div class="price-per-person">per person</div>
+                                </div>
+                                <button class="btn book-btn">Book Now</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                flightsHTML += `</div>`;
+                resultsSection.innerHTML = flightsHTML;
+                
+            } else {
+                resultsSection.innerHTML = `
+                    <h2 class="section-title">Flight Results</h2>
+                    <div class="no-results" style="text-align: center; padding: 40px 20px;">
+                        <i class="fas fa-search-minus" style="font-size: 3rem; color: var(--accent); margin-bottom: 1rem;"></i>
+                        <h3>No flights found</h3>
+                        <p>Try different dates or destinations</p>
+                        <button class="btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">New Search</button>
+                    </div>
+                `;
+            }
+            
+            resultsSection.style.display = 'block';
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function displayError(message) {
+            let resultsSection = document.querySelector('.results-section');
+            
+            if (!resultsSection) {
+                resultsSection = document.createElement('section');
+                resultsSection.className = 'results-section';
+                document.querySelector('.hero').after(resultsSection);
+            }
+            
+            resultsSection.innerHTML = `
+                <h2 class="section-title">Error</h2>
+                <div class="error-container" style="text-align: center; padding: 40px 20px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--accent); margin-bottom: 1rem;"></i>
+                    <h3>Unable to find flights</h3>
+                    <p>${message || 'Error searching flights. Please try again.'}</p>
+                    <button class="btn" style="margin-top: 20px;" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">Try Again</button>
+                </div>
+            `;
+            
+            resultsSection.style.display = 'block';
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function formatTime(date) {
+            return date.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                hour12: true 
+            });
+        }
+        </script>
+<!-- Keep your other scripts that handle UI elements -->
+<script>
+    // Loader animation
+    document.addEventListener('DOMContentLoaded', () => {
+        // ... your existing loader code ...
+    });
+
+    // Enhanced 3D Globe with Moving Flights
+    function initGlobe() {
+        // ... your existing globe code ...
+    }
+    
+    // ... other UI scripts ...
+</script>
+<script src="app.js"></script>
+<!-- Add this right before the closing </body> tag (after all your other scripts) -->
+<script src="https://files.bpcontent.cloud/2025/03/27/12/20250327125756-URQBOQ7B.js"></script>
+</body>
+
+</html>
