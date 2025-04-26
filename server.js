@@ -1,12 +1,12 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-require('dotenv').config();
+//require('dotenv').config();
 
 // Import route modules
 const flightRoutes = require('./routes/flightRoutes');
 const airportRoutes = require('./routes/airportRoutes');
-const config = require('./config/apiConfig');
+const config = require('./config/api');
 
 const app = express();
 
@@ -28,7 +28,7 @@ app.use('/api/flights', flightRoutes);
 app.use('/api/airports', airportRoutes);
 
 // Log that API is configured
-console.log('API configured with URL:', config.API_URL);
+console.log('https://api.aviationstack.com/v1/', config.API_URL);
 
 // Basic route for testing
 app.get('/api/test', (req, res) => {

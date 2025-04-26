@@ -89,18 +89,30 @@ const airports = [
   { iataCode: 'KBK', name: 'Kushinagar International', cityName: 'Kushinagar', countryName: 'India' },
 ];
 
-// Airport search endpoint that works with shorter queries
-// Add this after the existing route in airportRoutes.js
-// This ensures compatibility with the client code
-// Replace your current /search endpoint with this updated version
+// Test endpoint to verify routes are working
+router.get('/test', (req, res) => {
+  res.json({ 
+    message: 'Airport routes are working', 
+    endpoints: ['/search'],
+    sampleUsage: '/api/airports/search?query=del'
+  });
+});
+
+// Airport search endpoint
 router.get('/search', (req, res) => {
+  // Add CORS headers
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  
   try {
     // Accept either "query" or "q" parameter for flexibility
     const query = (req.query.query || req.query.q || '').toLowerCase().trim();
-    console.log(`Received airport search request for: "${query}"`);
+    console.log(`Search API called with query: "${query}" (${typeof query})`);
+    console.log(`Query parameters:`, req.query);
     
-    // Remove the length restriction to allow single-character searches
+    // Return empty results for empty query
     if (!query) {
+      console.log('Empty query received, returning empty results');
       return res.json({ places: [] });
     }
     
@@ -121,8 +133,19 @@ router.get('/search', (req, res) => {
     
   } catch (error) {
     console.error('Error in airport search:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      query: req.query
+    });
+    res.status(500).json({ 
+      error: 'Internal server error', 
+      message: error.message 
+    });
   }
 });
 
 module.exports = router;
+
+    
+  
